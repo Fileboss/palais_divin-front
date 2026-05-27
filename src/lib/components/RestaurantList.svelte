@@ -25,7 +25,7 @@
 		{m.restaurant_list_empty()}
 	</p>
 {:else}
-	<ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+	<ul class="flex flex-col gap-3">
 		{#each restaurants as restaurant (restaurant.id)}
 			<li><RestaurantCard {restaurant} /></li>
 		{/each}
