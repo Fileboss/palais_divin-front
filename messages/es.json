@@ -1,4 +1,24 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"hello_world": "Hello, {name} from es!"
+	"brand_name": "Le Palais Divin",
+	"nav_home": "Home",
+	"home_title": "Restaurants in Toulouse",
+	"home_subtitle": "Discover and rate restaurants in the pink city.",
+	"restaurant_list_empty": "No restaurants yet. Be the first to add one!",
+	"restaurant_load_more": "Load more",
+	"restaurant_loading": "Loading…",
+	"restaurant_add": "Add a restaurant",
+	"create_restaurant_title": "New restaurant",
+	"form_name": "Name",
+	"form_address": "Address",
+	"form_location": "Location",
+	"form_use_my_location": "Use my location",
+	"form_latitude": "Latitude",
+	"form_longitude": "Longitude",
+	"form_cancel": "Cancel",
+	"form_submit": "Create",
+	"form_submitting": "Creating…",
+	"error_geolocation_denied": "Location unavailable. Enter coordinates manually.",
+	"error_create_failed": "Failed to create restaurant. Please try again.",
+	"error_load_more_failed": "Could not load more. Please try again."
 }

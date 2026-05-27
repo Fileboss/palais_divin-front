@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**Le Palais Divin** — a restaurant rating web app focused on Toulouse, deployed at `palaisdivin.lepgu.fr` on a hand-managed VPS. This repo is the SvelteKit frontend only; Docker Compose and infra config live in a separate infra repo.
+**Le Palais Divin** — a restaurant rating web app focused on Toulouse, deployed at `palaisdivin.lepgu.fr` on a hand-managed VPS. This repo is the SvelteKit frontend only; Docker Compose, Caddyfile and other deploy config live in a sibling infra repo (`../qui-est-ce_infra/`, to be renamed). That repo hosts multiple sites on the same VPS behind one Caddy instance, each on its own subdomain.
 
 ## Commands
 
@@ -49,10 +49,54 @@ npx vitest run src/path/to/file.spec.ts  # run a single test file
 ### Testing
 
 Vitest runs two separate projects defined in `vite.config.ts`:
+
 - **`client`** — browser tests (Chromium/Playwright), matches `*.svelte.{test,spec}.{js,ts}`
 - **`server`** — Node environment, matches `*.{test,spec}.{js,ts}` (excluding svelte browser tests)
 
 E2e tests (Playwright) live alongside the routes they test, e.g. `src/routes/demo/playwright/page.svelte.e2e.ts`.
+
+### Backend API (`src/lib/api/`)
+
+The browser **never** talks to the backend directly. All API calls go to `/api/*` on the
+same origin as the frontend, and a reverse proxy routes them to the backend:
+
+- **Dev**: `vite.config.ts` proxies `/api/*` → `process.env.API_BASE_URL` (default `http://localhost:8080`)
+- **Prod**: Caddy on the VPS (infra repo) does the same routing — see "Deployment" below
+
+The API client (`restaurants.ts`) uses relative paths by default. Server-side load functions
+(SSR) pass an explicit `baseUrl` from `env.API_BASE_URL` (`$env/dynamic/private`) since
+SvelteKit's `event.fetch` against a relative `/api/*` would hit SvelteKit itself, not the
+backend. `API_BASE_URL` is therefore required in production for SSR to work.
+
+### Deployment
+
+The infra repo (`../qui-est-ce_infra/`) is a multi-site Docker Compose stack behind a single
+Caddy reverse proxy. Each site gets its own subdomain block in the `Caddyfile`. When adding
+Palais Divin, the block should look like:
+
+```
+palaisdivin.lepgu.fr {
+    handle /api/* {
+        reverse_proxy palaisdivin-back:8080
+    }
+    handle {
+        reverse_proxy palaisdivin-front:80
+    }
+}
+```
+
+**Important Caddy detail — `handle` vs `handle_path`**: the qui-est-ce block uses
+`handle_path /api/*` which _strips_ the `/api` prefix before forwarding (its backend exposes
+endpoints at `/pack`, `/game/*`, no prefix). The Palais Divin backend exposes endpoints **with**
+the prefix (e.g. `/api/v1/public/restaurants` — see `doc/openapi.yaml`), so its block must use
+`handle /api/*` (no strip). Picking the wrong directive will silently 404 every request.
+
+The frontend container is expected to be `palaisdivin-front:80` (image name TBD, pushed via
+CI on every push to `main`). The repo still uses `@sveltejs/adapter-auto`; switching to
+`adapter-node` and adding a `Dockerfile` is a future task before the first deploy.
+
+In Docker Compose, set `API_BASE_URL=http://palaisdivin-back:8080` on the front service so SSR
+can reach the backend over the internal network.
 
 ### CI
 

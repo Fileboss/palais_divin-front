@@ -1,4 +1,24 @@
 {
 	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"hello_world": "Hello, {name} from fr!"
+	"brand_name": "Le Palais Divin",
+	"nav_home": "Accueil",
+	"home_title": "Restaurants à Toulouse",
+	"home_subtitle": "Découvrez et notez les restaurants de la ville rose.",
+	"restaurant_list_empty": "Aucun restaurant pour le moment. Soyez le premier à en ajouter un !",
+	"restaurant_load_more": "Charger plus",
+	"restaurant_loading": "Chargement…",
+	"restaurant_add": "Ajouter un restaurant",
+	"create_restaurant_title": "Nouveau restaurant",
+	"form_name": "Nom",
+	"form_address": "Adresse",
+	"form_location": "Localisation",
+	"form_use_my_location": "Utiliser ma position",
+	"form_latitude": "Latitude",
+	"form_longitude": "Longitude",
+	"form_cancel": "Annuler",
+	"form_submit": "Créer",
+	"form_submitting": "Création en cours…",
+	"error_geolocation_denied": "Position indisponible. Saisissez les coordonnées manuellement.",
+	"error_create_failed": "Échec de la création du restaurant. Réessayez.",
+	"error_load_more_failed": "Impossible de charger la suite. Réessayez."
 }

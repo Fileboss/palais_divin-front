@@ -7,3 +7,10 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Tooling and external artifacts
+/.claude/
+/doc/
+/project.inlang/.meta.json
+/project.inlang/README.md
+/src/lib/paraglide/
