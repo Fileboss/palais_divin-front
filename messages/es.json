@@ -11,14 +11,12 @@
 	"create_restaurant_title": "New restaurant",
 	"form_name": "Name",
 	"form_address": "Address",
-	"form_location": "Location",
-	"form_use_my_location": "Use my location",
-	"form_latitude": "Latitude",
-	"form_longitude": "Longitude",
 	"form_cancel": "Cancel",
 	"form_submit": "Create",
 	"form_submitting": "Creating…",
-	"error_geolocation_denied": "Location unavailable. Enter coordinates manually.",
 	"error_create_failed": "Failed to create restaurant. Please try again.",
-	"error_load_more_failed": "Could not load more. Please try again."
+	"error_load_more_failed": "Could not load more. Please try again.",
+	"auth_sign_in": "Sign in",
+	"auth_sign_out": "Sign out",
+	"auth_error_login_failed": "Sign-in failed. Please try again."
 }

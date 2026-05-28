@@ -5,6 +5,12 @@
 	import { locales, localizeHref, getLocale } from '$lib/paraglide/runtime';
 	import * as m from '$lib/paraglide/messages';
 
+	let {
+		user
+	}: {
+		user?: { username: string } | null;
+	} = $props();
+
 	const flagMap: Record<string, string> = {
 		fr: '🇫🇷',
 		en: '🇬🇧',
@@ -69,7 +75,7 @@
 
 				{#if open}
 					<div
-						class="absolute right-0 top-full z-50 mt-1 min-w-[7rem] overflow-hidden rounded-md border border-stone-200 bg-white shadow-md"
+						class="absolute top-full right-0 z-50 mt-1 min-w-[7rem] overflow-hidden rounded-md border border-stone-200 bg-white shadow-md"
 						role="listbox"
 					>
 						{#each locales as locale (locale)}
@@ -90,6 +96,27 @@
 					</div>
 				{/if}
 			</div>
+
+			{#if user}
+				<div class="flex items-center gap-3 text-sm">
+					<span class="font-medium text-stone-700">{user.username}</span>
+					<form method="POST" action={resolve('/auth/logout')}>
+						<button
+							type="submit"
+							class="rounded-md border border-stone-300 bg-white px-3 py-1 text-xs font-medium text-stone-700 shadow-sm hover:bg-stone-50"
+						>
+							{m.auth_sign_out()}
+						</button>
+					</form>
+				</div>
+			{:else}
+				<a
+					href={resolve('/auth/login')}
+					class="rounded-md bg-stone-900 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-stone-800"
+				>
+					{m.auth_sign_in()}
+				</a>
+			{/if}
 		</nav>
 	</div>
 </header>

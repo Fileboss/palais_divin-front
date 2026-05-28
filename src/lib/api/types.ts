@@ -5,15 +5,14 @@ export interface CoordinatesDto {
 
 export interface CreateRestaurantRequest {
 	name: string;
-	address?: string;
-	location: CoordinatesDto;
+	address: string;
 }
 
 export interface RestaurantResponse {
 	id: string;
 	name: string;
 	address?: string;
-	location: CoordinatesDto;
+	location?: CoordinatesDto;
 	createdAt: string;
 }
 

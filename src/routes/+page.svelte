@@ -42,7 +42,7 @@
 	<title>{m.home_title()} · {m.brand_name()}</title>
 </svelte:head>
 
-<Header />
+<Header user={data.user} />
 
 <main class="mx-auto max-w-5xl px-4 py-8">
 	<div class="mb-6 flex flex-wrap items-end justify-between gap-4">

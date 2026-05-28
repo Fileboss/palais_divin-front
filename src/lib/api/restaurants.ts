@@ -14,30 +14,25 @@ async function parseOrThrow<T>(res: Response): Promise<T> {
 	return (await res.json()) as T;
 }
 
-function buildUrl(path: string, baseUrl: string, query?: URLSearchParams): string {
-	const qs = query && [...query].length > 0 ? `?${query}` : '';
-	return `${baseUrl}${path}${qs}`;
-}
+const BASE_PATH = '/api/v1/user/restaurants';
 
 export async function listRestaurants(
 	fetcher: Fetcher,
-	options: { cursor?: string; size?: number; baseUrl?: string } = {}
+	options: { cursor?: string; size?: number } = {}
 ): Promise<RestaurantsPageResponse> {
 	const qs = new URLSearchParams();
 	if (options.cursor) qs.set('cursor', options.cursor);
 	if (options.size != null) qs.set('size', String(options.size));
-	const url = buildUrl('/api/v1/public/restaurants', options.baseUrl ?? '', qs);
+	const url = qs.size > 0 ? `${BASE_PATH}?${qs}` : BASE_PATH;
 	const res = await fetcher(url, { headers: { Accept: 'application/json' } });
 	return parseOrThrow<RestaurantsPageResponse>(res);
 }
 
 export async function createRestaurant(
 	fetcher: Fetcher,
-	body: CreateRestaurantRequest,
-	options: { baseUrl?: string } = {}
+	body: CreateRestaurantRequest
 ): Promise<RestaurantResponse> {
-	const url = buildUrl('/api/v1/public/restaurants', options.baseUrl ?? '');
-	const res = await fetcher(url, {
+	const res = await fetcher(BASE_PATH, {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 		body: JSON.stringify(body)

@@ -15,12 +15,9 @@
 
 	let name = $state('');
 	let address = $state('');
-	let latitude = $state<number | null>(null);
-	let longitude = $state<number | null>(null);
 
 	let submitting = $state(false);
 	let submitError = $state<string | null>(null);
-	let geolocationError = $state<string | null>(null);
 
 	$effect(() => {
 		if (!dialog) return;
@@ -34,10 +31,7 @@
 	function reset() {
 		name = '';
 		address = '';
-		latitude = null;
-		longitude = null;
 		submitError = null;
-		geolocationError = null;
 		submitting = false;
 	}
 
@@ -46,34 +40,14 @@
 		reset();
 	}
 
-	function useMyLocation() {
-		geolocationError = null;
-		if (!navigator.geolocation) {
-			geolocationError = m.error_geolocation_denied();
-			return;
-		}
-		navigator.geolocation.getCurrentPosition(
-			(position) => {
-				latitude = Number(position.coords.latitude.toFixed(6));
-				longitude = Number(position.coords.longitude.toFixed(6));
-			},
-			() => {
-				geolocationError = m.error_geolocation_denied();
-			}
-		);
-	}
-
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
-		if (latitude === null || longitude === null) return;
-
 		submitting = true;
 		submitError = null;
 		try {
 			const created = await createRestaurant(fetch, {
 				name: name.trim(),
-				address: address.trim() || undefined,
-				location: { latitude, longitude }
+				address: address.trim()
 			});
 			oncreated(created);
 			close();
@@ -123,49 +97,11 @@
 			<input
 				type="text"
 				bind:value={address}
+				required
+				minlength="1"
 				class="rounded-md border-stone-300 focus:border-stone-500 focus:ring-stone-500"
 			/>
 		</label>
-
-		<fieldset class="flex flex-col gap-2">
-			<legend class="text-sm font-medium text-stone-700">{m.form_location()}</legend>
-			<button
-				type="button"
-				onclick={useMyLocation}
-				class="self-start rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 shadow-sm hover:bg-stone-50"
-			>
-				{m.form_use_my_location()}
-			</button>
-			{#if geolocationError}
-				<p class="text-xs text-amber-700" role="alert">{geolocationError}</p>
-			{/if}
-			<div class="grid grid-cols-2 gap-2">
-				<label class="flex flex-col gap-1">
-					<span class="text-xs text-stone-600">{m.form_latitude()}</span>
-					<input
-						type="number"
-						bind:value={latitude}
-						required
-						min="-90"
-						max="90"
-						step="any"
-						class="rounded-md border-stone-300 focus:border-stone-500 focus:ring-stone-500"
-					/>
-				</label>
-				<label class="flex flex-col gap-1">
-					<span class="text-xs text-stone-600">{m.form_longitude()}</span>
-					<input
-						type="number"
-						bind:value={longitude}
-						required
-						min="-180"
-						max="180"
-						step="any"
-						class="rounded-md border-stone-300 focus:border-stone-500 focus:ring-stone-500"
-					/>
-				</label>
-			</div>
-		</fieldset>
 
 		{#if submitError}
 			<p class="text-sm text-red-600" role="alert">{submitError}</p>

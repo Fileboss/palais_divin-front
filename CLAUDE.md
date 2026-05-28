@@ -55,48 +55,66 @@ Vitest runs two separate projects defined in `vite.config.ts`:
 
 E2e tests (Playwright) live alongside the routes they test, e.g. `src/routes/demo/playwright/page.svelte.e2e.ts`.
 
-### Backend API (`src/lib/api/`)
+### Backend API + Auth (BFF)
 
-The browser **never** talks to the backend directly. All API calls go to `/api/*` on the
-same origin as the frontend, and a reverse proxy routes them to the backend:
+The browser **never** talks to the backend directly. All `/api/*` requests are handled
+in-process by a SvelteKit catch-all route (`src/routes/api/[...path]/+server.ts`) that:
 
-- **Dev**: `vite.config.ts` proxies `/api/*` → `process.env.API_BASE_URL` (default `http://localhost:8080`)
-- **Prod**: Caddy on the VPS (infra repo) does the same routing — see "Deployment" below
+1. Reads the encrypted `pd_session` cookie via `src/lib/server/auth.ts`.
+2. Refreshes the access token if it's within 60s of expiry (`refreshTokenGrant` from
+   `openid-client`), re-encrypts the cookie.
+3. Returns 401 if the path is under `/api/v1/user/` and no session exists. `/api/v1/public/*`
+   passes through without auth.
+4. Forwards method, headers (minus `cookie`/`host`/hop-by-hop), and streamed body to
+   `${API_BASE_URL}/api/<path>` with `Authorization: Bearer <access_token>` injected.
 
-The API client (`restaurants.ts`) uses relative paths by default. Server-side load functions
-(SSR) pass an explicit `baseUrl` from `env.API_BASE_URL` (`$env/dynamic/private`) since
-SvelteKit's `event.fetch` against a relative `/api/*` would hit SvelteKit itself, not the
-backend. `API_BASE_URL` is therefore required in production for SSR to work.
+This means SSR `event.fetch('/api/v1/user/restaurants')` works transparently — SvelteKit
+routes it back to the catch-all, which reads the cookie from the original request.
+
+**Login flow** (`src/routes/auth/{login,callback,logout}/+server.ts`): OIDC Authorization
+Code with PKCE against the `palaisdivin` Keycloak realm. State + PKCE verifier are stored
+in short-lived HttpOnly cookies; tokens land in `pd_session` (AES-256-GCM via `jose`).
+
+**Required env vars** (`.env.example`):
+
+- `API_BASE_URL` — backend base URL reachable from the SvelteKit Node process
+- `KEYCLOAK_ISSUER_URI` — e.g. `http://localhost:8081/realms/palaisdivin`
+- `OIDC_CLIENT_ID` — `palais-divin-frontend` (public client, PKCE)
+- `PUBLIC_ORIGIN` — origin of this app, used to build the redirect URI sent to Keycloak
+- `SESSION_SECRET` — 32+ random bytes base64, AES-256-GCM key for the session cookie
+
+`event.locals.session` (typed in `src/app.d.ts`) carries `{ sub, username, roles }` for use
+in load functions and pages — **never** tokens.
 
 ### Deployment
 
 The infra repo (`../qui-est-ce_infra/`) is a multi-site Docker Compose stack behind a single
-Caddy reverse proxy. Each site gets its own subdomain block in the `Caddyfile`. When adding
-Palais Divin, the block should look like:
+Caddy reverse proxy. Each site gets its own subdomain block in the `Caddyfile`. Palais Divin
+routes everything (including `/api/*`) to the SvelteKit container; the BFF proxy inside
+SvelteKit forwards backend calls. So the Caddy block is just:
 
 ```
 palaisdivin.lepgu.fr {
-    handle /api/* {
-        reverse_proxy palaisdivin-back:8080
-    }
-    handle {
-        reverse_proxy palaisdivin-front:80
-    }
+    reverse_proxy palaisdivin-front:3000
 }
 ```
 
-**Important Caddy detail — `handle` vs `handle_path`**: the qui-est-ce block uses
-`handle_path /api/*` which _strips_ the `/api` prefix before forwarding (its backend exposes
-endpoints at `/pack`, `/game/*`, no prefix). The Palais Divin backend exposes endpoints **with**
-the prefix (e.g. `/api/v1/public/restaurants` — see `doc/openapi.yaml`), so its block must use
-`handle /api/*` (no strip). Picking the wrong directive will silently 404 every request.
+The frontend container is expected to be `palaisdivin-front:3000` (adapter-node default port,
+image name TBD, pushed via CI on every push to `main`). The repo still uses
+`@sveltejs/adapter-auto`; switching to `adapter-node` and adding a `Dockerfile` is a future
+task before the first deploy.
 
-The frontend container is expected to be `palaisdivin-front:80` (image name TBD, pushed via
-CI on every push to `main`). The repo still uses `@sveltejs/adapter-auto`; switching to
-`adapter-node` and adding a `Dockerfile` is a future task before the first deploy.
+In Docker Compose, set on the front service:
 
-In Docker Compose, set `API_BASE_URL=http://palaisdivin-back:8080` on the front service so SSR
-can reach the backend over the internal network.
+- `API_BASE_URL=http://palaisdivin-back:8080` (backend over the internal network)
+- `KEYCLOAK_ISSUER_URI=https://auth.lepgu.fr/realms/palaisdivin` (or wherever Keycloak lives)
+- `PUBLIC_ORIGIN=https://palaisdivin.lepgu.fr`
+- `OIDC_CLIENT_ID=palais-divin-frontend`
+- `SESSION_SECRET=<random>`
+
+Also add `https://palaisdivin.lepgu.fr/*` to the realm client's `redirectUris` before the
+first prod deploy (currently the realm export only whitelists `http://localhost:5173/*`
+and `:3000/*`).
 
 ### CI
 
