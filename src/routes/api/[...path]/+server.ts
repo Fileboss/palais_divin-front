@@ -18,7 +18,8 @@ async function proxy(event: Parameters<RequestHandler>[0]): Promise<Response> {
 	if (!apiBase) return new Response('API_BASE_URL not configured', { status: 500 });
 
 	const upstreamPath = `/api/${event.params.path}`;
-	const requiresAuth = upstreamPath.startsWith('/api/v1/user/');
+	const requiresAdmin = upstreamPath.startsWith('/api/v1/admin/');
+	const requiresAuth = requiresAdmin || upstreamPath.startsWith('/api/v1/user/');
 
 	let session = await readSession(event.cookies);
 	if (session) session = await refreshIfNeeded(event.cookies, session);
@@ -28,6 +29,13 @@ async function proxy(event: Parameters<RequestHandler>[0]): Promise<Response> {
 			JSON.stringify({ type: 'about:blank', title: 'Unauthorized', status: 401 }),
 			{ status: 401, headers: { 'content-type': 'application/problem+json' } }
 		);
+	}
+
+	if (requiresAdmin && session && !session.roles.includes('ROLE_ADMIN')) {
+		return new Response(JSON.stringify({ type: 'about:blank', title: 'Forbidden', status: 403 }), {
+			status: 403,
+			headers: { 'content-type': 'application/problem+json' }
+		});
 	}
 
 	const upstreamUrl = new URL(upstreamPath, apiBase);

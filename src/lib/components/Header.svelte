@@ -8,8 +8,10 @@
 	let {
 		user
 	}: {
-		user?: { username: string } | null;
+		user?: { username: string; roles?: string[] } | null;
 	} = $props();
+
+	const isAdmin = $derived(user?.roles?.includes('ROLE_ADMIN') ?? false);
 
 	const flagMap: Record<string, string> = {
 		fr: '🇫🇷',
@@ -50,6 +52,16 @@
 			>
 				{m.nav_home()}
 			</a>
+
+			{#if isAdmin}
+				<a
+					href={resolve('/admin/invitations')}
+					class="text-sm font-medium text-stone-900 underline-offset-4 hover:underline"
+					aria-current={page.url.pathname.startsWith('/admin') ? 'page' : undefined}
+				>
+					{m.nav_admin()}
+				</a>
+			{/if}
 
 			<div bind:this={el} class="relative">
 				<button
