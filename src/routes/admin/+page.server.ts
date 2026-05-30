@@ -5,7 +5,7 @@ export const load: PageServerLoad = ({ locals, url }) => {
 	if (!locals.session) {
 		redirect(302, `/auth/login?return_to=${encodeURIComponent(url.pathname + url.search)}`);
 	}
-	if (!locals.session.roles.includes('ROLE_ADMIN')) {
+	if (!locals.session.roles.includes('ADMIN')) {
 		error(403, 'Forbidden');
 	}
 	return {};
