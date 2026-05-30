@@ -1,5 +1,5 @@
 import { env } from '$env/dynamic/private';
-import { readSession, refreshIfNeeded } from '$lib/server/auth';
+import { clearSession, readSession, refreshIfNeeded } from '$lib/server/auth';
 import type { RequestHandler } from './$types';
 
 const HOP_BY_HOP = new Set([
@@ -31,7 +31,7 @@ async function proxy(event: Parameters<RequestHandler>[0]): Promise<Response> {
 		);
 	}
 
-	if (requiresAdmin && session && !session.roles.includes('ROLE_ADMIN')) {
+	if (requiresAdmin && session && !session.roles.includes('ADMIN')) {
 		return new Response(JSON.stringify({ type: 'about:blank', title: 'Forbidden', status: 403 }), {
 			status: 403,
 			headers: { 'content-type': 'application/problem+json' }
@@ -48,7 +48,7 @@ async function proxy(event: Parameters<RequestHandler>[0]): Promise<Response> {
 		if (lower === 'cookie' || lower === 'host') continue;
 		headers.set(name, value);
 	}
-	if (session) headers.set('Authorization', `Bearer ${session.access_token}`);
+	if (requiresAuth && session) headers.set('Authorization', `Bearer ${session.access_token}`);
 
 	const method = event.request.method.toUpperCase();
 	const body = method === 'GET' || method === 'HEAD' ? undefined : event.request.body;
@@ -60,6 +60,10 @@ async function proxy(event: Parameters<RequestHandler>[0]): Promise<Response> {
 		// @ts-expect-error — Node fetch needs this for streamed bodies
 		duplex: body ? 'half' : undefined
 	});
+
+	if (upstream.status === 401 && requiresAuth && session) {
+		clearSession(event.cookies);
+	}
 
 	const responseHeaders = new Headers();
 	for (const [name, value] of upstream.headers) {
