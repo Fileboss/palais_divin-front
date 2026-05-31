@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import * as m from '$lib/paraglide/messages';
 	import Header from '$lib/components/Header.svelte';
 	import RestaurantList from '$lib/components/RestaurantList.svelte';
 	import CreateRestaurantModal from '$lib/components/CreateRestaurantModal.svelte';
-	import { listRestaurants } from '$lib/api/restaurants';
+	import { listRestaurantsPublic } from '$lib/api/restaurants';
 	import type { PageMeta, RestaurantResponse } from '$lib/api/types';
 	import type { PageData } from './$types';
 
@@ -18,12 +19,17 @@
 	let loadingMore = $state(false);
 	let loadMoreError = $state<string | null>(null);
 
+	const isAuthed = $derived(!!data.user);
+
 	async function handleLoadMore() {
 		if (!meta.hasNext || !meta.nextCursor || loadingMore) return;
 		loadingMore = true;
 		loadMoreError = null;
 		try {
-			const next = await listRestaurants(fetch, { cursor: meta.nextCursor, size: meta.size });
+			const next = await listRestaurantsPublic(fetch, {
+				cursor: meta.nextCursor,
+				size: meta.size
+			});
 			restaurants = [...restaurants, ...next.data];
 			meta = next.page;
 		} catch {
@@ -50,13 +56,22 @@
 			<h1 class="text-2xl font-bold text-stone-900">{m.home_title()}</h1>
 			<p class="mt-1 text-sm text-stone-600">{m.home_subtitle()}</p>
 		</div>
-		<button
-			type="button"
-			onclick={() => (modalOpen = true)}
-			class="rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-stone-800"
-		>
-			+ {m.restaurant_add()}
-		</button>
+		{#if isAuthed}
+			<button
+				type="button"
+				onclick={() => (modalOpen = true)}
+				class="rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-stone-800"
+			>
+				+ {m.restaurant_add()}
+			</button>
+		{:else}
+			<a
+				href={resolve('/auth/login')}
+				class="text-sm font-medium text-stone-600 underline-offset-4 hover:text-stone-900 hover:underline"
+			>
+				{m.home_signin_to_add()}
+			</a>
+		{/if}
 	</div>
 
 	<RestaurantList
@@ -64,8 +79,11 @@
 		{meta}
 		loading={loadingMore}
 		error={loadMoreError}
+		showMyReview={isAuthed}
 		onloadmore={handleLoadMore}
 	/>
 </main>
 
-<CreateRestaurantModal bind:open={modalOpen} oncreated={handleCreated} />
+{#if isAuthed}
+	<CreateRestaurantModal bind:open={modalOpen} oncreated={handleCreated} />
+{/if}

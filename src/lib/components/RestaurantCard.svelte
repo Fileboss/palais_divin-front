@@ -2,7 +2,10 @@
 	import { getLocale } from '$lib/paraglide/runtime';
 	import type { RestaurantResponse } from '$lib/api/types';
 
-	let { restaurant }: { restaurant: RestaurantResponse } = $props();
+	let {
+		restaurant,
+		showMyReview = false
+	}: { restaurant: RestaurantResponse; showMyReview?: boolean } = $props();
 
 	const createdAt = $derived(
 		new Date(restaurant.createdAt).toLocaleDateString(getLocale(), {
@@ -31,9 +34,11 @@
 		</p>
 	</div>
 
-	<div class="w-px self-stretch bg-stone-100"></div>
+	{#if showMyReview}
+		<div class="w-px self-stretch bg-stone-100"></div>
 
-	<div class="flex w-44 flex-shrink-0 flex-col gap-2 p-4">
-		<p class="text-xs font-medium tracking-wide text-stone-400 uppercase">My Review</p>
-	</div>
+		<div class="flex w-44 flex-shrink-0 flex-col gap-2 p-4">
+			<p class="text-xs font-medium tracking-wide text-stone-400 uppercase">My Review</p>
+		</div>
+	{/if}
 </article>

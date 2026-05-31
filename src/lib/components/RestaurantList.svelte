@@ -8,12 +8,14 @@
 		meta,
 		loading = false,
 		error = null,
+		showMyReview = false,
 		onloadmore
 	}: {
 		restaurants: RestaurantResponse[];
 		meta: PageMeta;
 		loading?: boolean;
 		error?: string | null;
+		showMyReview?: boolean;
 		onloadmore: () => void;
 	} = $props();
 </script>
@@ -27,7 +29,7 @@
 {:else}
 	<ul class="flex flex-col gap-3">
 		{#each restaurants as restaurant (restaurant.id)}
-			<li><RestaurantCard {restaurant} /></li>
+			<li><RestaurantCard {restaurant} {showMyReview} /></li>
 		{/each}
 	</ul>
 {/if}
