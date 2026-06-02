@@ -13,6 +13,7 @@ export interface RestaurantResponse {
 	name: string;
 	address?: string;
 	location?: CoordinatesDto;
+	avgRating?: number;
 	createdAt: string;
 }
 
@@ -44,6 +45,53 @@ export interface SignupResponse {
 	id: string;
 	email: string;
 	displayName: string;
+	createdAt: string;
+}
+
+export interface ReviewResponse {
+	id: string;
+	restaurantId: string;
+	authorId: string;
+	rating: number;
+	comment?: string;
+	createdAt: string;
+}
+
+export interface ReviewsPageResponse {
+	data: ReviewResponse[];
+	page: PageMeta;
+}
+
+export interface CreateReviewRequest {
+	rating: number;
+	comment?: string;
+}
+
+export interface RecommendationResponse {
+	id: string;
+	name: string;
+	address?: string;
+	latitude?: number;
+	longitude?: number;
+	affinity: number;
+	recommenderCount: number;
+}
+
+export interface RecommendationsPageResponse {
+	data: RecommendationResponse[];
+	page: PageMeta;
+}
+
+export interface RestaurantAffinityResponse {
+	restaurantId: string;
+	affinity: number;
+	recommenderCount: number;
+}
+
+export interface ConnectionResponse {
+	id: string;
+	sourceUserId: string;
+	targetUserId: string;
 	createdAt: string;
 }
 

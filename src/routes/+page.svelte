@@ -5,7 +5,8 @@
 	import RestaurantList from '$lib/components/RestaurantList.svelte';
 	import CreateRestaurantModal from '$lib/components/CreateRestaurantModal.svelte';
 	import { listRestaurantsPublic } from '$lib/api/restaurants';
-	import type { PageMeta, RestaurantResponse } from '$lib/api/types';
+	import { getMyReview } from '$lib/api/reviews';
+	import type { PageMeta, RestaurantResponse, ReviewResponse } from '$lib/api/types';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -15,11 +16,15 @@
 	let restaurants = $state<RestaurantResponse[]>(data.restaurants);
 	// svelte-ignore state_referenced_locally
 	let meta = $state<PageMeta>(data.meta);
+	// svelte-ignore state_referenced_locally
+	let myReviews = $state<Record<string, ReviewResponse | null>>({ ...data.myReviews });
 	let modalOpen = $state(false);
 	let loadingMore = $state(false);
 	let loadMoreError = $state<string | null>(null);
 
 	const isAuthed = $derived(!!data.user);
+	const userId = $derived(data.user?.sub ?? null);
+	const isAdmin = $derived(data.user?.roles.includes('ADMIN') ?? false);
 
 	async function handleLoadMore() {
 		if (!meta.hasNext || !meta.nextCursor || loadingMore) return;
@@ -32,6 +37,21 @@
 			});
 			restaurants = [...restaurants, ...next.data];
 			meta = next.page;
+			if (userId && next.data.length > 0) {
+				const sub = userId;
+				const entries = await Promise.all(
+					next.data.map(async (r) => {
+						try {
+							return [r.id, await getMyReview(fetch, r.id)] as const;
+						} catch {
+							return [r.id, null] as const;
+						}
+					})
+				);
+				const merged = { ...myReviews };
+				for (const [id, review] of entries) merged[id] = review;
+				myReviews = merged;
+			}
 		} catch {
 			loadMoreError = m.error_load_more_failed();
 		} finally {
@@ -41,6 +61,15 @@
 
 	function handleCreated(restaurant: RestaurantResponse) {
 		restaurants = [restaurant, ...restaurants];
+		myReviews = { ...myReviews, [restaurant.id]: null };
+	}
+
+	function handleReviewChange(review: ReviewResponse) {
+		myReviews = { ...myReviews, [review.restaurantId]: review };
+	}
+
+	function handleDeleted(id: string) {
+		restaurants = restaurants.filter((r) => r.id !== id);
 	}
 </script>
 
@@ -80,6 +109,11 @@
 		loading={loadingMore}
 		error={loadMoreError}
 		showMyReview={isAuthed}
+		{isAdmin}
+		{userId}
+		{myReviews}
+		onreviewchange={handleReviewChange}
+		ondelete={handleDeleted}
 		onloadmore={handleLoadMore}
 	/>
 </main>

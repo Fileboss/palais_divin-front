@@ -53,6 +53,16 @@
 				{m.nav_home()}
 			</a>
 
+			{#if user}
+				<a
+					href={resolve('/recommendations')}
+					class="text-sm font-medium text-stone-900 underline-offset-4 hover:underline"
+					aria-current={page.url.pathname.startsWith('/recommendations') ? 'page' : undefined}
+				>
+					{m.nav_recommendations()}
+				</a>
+			{/if}
+
 			{#if isAdmin}
 				<a
 					href={resolve('/admin')}

@@ -1,6 +1,7 @@
 import {
 	ApiError,
 	type CreateRestaurantRequest,
+	type RestaurantAffinityResponse,
 	type RestaurantResponse,
 	type RestaurantsPageResponse
 } from './types';
@@ -39,6 +40,16 @@ export async function getRestaurantPublic(
 	return parseOrThrow<RestaurantResponse>(res);
 }
 
+export async function getRestaurantAffinity(
+	fetcher: Fetcher,
+	id: string
+): Promise<RestaurantAffinityResponse> {
+	const res = await fetcher(`${USER_PATH}/${encodeURIComponent(id)}/affinity`, {
+		headers: { Accept: 'application/json' }
+	});
+	return parseOrThrow<RestaurantAffinityResponse>(res);
+}
+
 export async function createRestaurant(
 	fetcher: Fetcher,
 	body: CreateRestaurantRequest
@@ -49,4 +60,11 @@ export async function createRestaurant(
 		body: JSON.stringify(body)
 	});
 	return parseOrThrow<RestaurantResponse>(res);
+}
+
+const ADMIN_PATH = '/api/v1/admin/restaurants';
+
+export async function deleteRestaurant(fetcher: Fetcher, id: string): Promise<void> {
+	const res = await fetcher(`${ADMIN_PATH}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+	if (!res.ok) throw new ApiError(res.status, `${res.status} ${res.statusText}`);
 }

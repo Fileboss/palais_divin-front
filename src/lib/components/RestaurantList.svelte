@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
-	import type { PageMeta, RestaurantResponse } from '$lib/api/types';
+	import type { PageMeta, RestaurantResponse, ReviewResponse } from '$lib/api/types';
 	import RestaurantCard from './RestaurantCard.svelte';
 
 	let {
@@ -9,6 +9,11 @@
 		loading = false,
 		error = null,
 		showMyReview = false,
+		isAdmin = false,
+		userId = null,
+		myReviews = {},
+		onreviewchange,
+		ondelete,
 		onloadmore
 	}: {
 		restaurants: RestaurantResponse[];
@@ -16,6 +21,11 @@
 		loading?: boolean;
 		error?: string | null;
 		showMyReview?: boolean;
+		isAdmin?: boolean;
+		userId?: string | null;
+		myReviews?: Record<string, ReviewResponse | null>;
+		onreviewchange?: (review: ReviewResponse) => void;
+		ondelete?: (id: string) => void;
 		onloadmore: () => void;
 	} = $props();
 </script>
@@ -29,7 +39,17 @@
 {:else}
 	<ul class="flex flex-col gap-3">
 		{#each restaurants as restaurant (restaurant.id)}
-			<li><RestaurantCard {restaurant} {showMyReview} /></li>
+			<li>
+				<RestaurantCard
+					{restaurant}
+					{showMyReview}
+					{isAdmin}
+					{userId}
+					myReview={myReviews[restaurant.id] ?? null}
+					{onreviewchange}
+					{ondelete}
+				/>
+			</li>
 		{/each}
 	</ul>
 {/if}

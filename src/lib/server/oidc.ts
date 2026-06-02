@@ -11,13 +11,18 @@ export function getOidcConfig(): Promise<oidc.Configuration> {
 		const clientId = env.OIDC_CLIENT_ID;
 		if (!issuer) throw new Error('KEYCLOAK_ISSUER_URI is not set');
 		if (!clientId) throw new Error('OIDC_CLIENT_ID is not set');
-		configPromise = oidc.discovery(
-			new URL(issuer),
-			clientId,
-			undefined,
-			oidc.None(),
-			dev ? { execute: [oidc.allowInsecureRequests] } : undefined
-		);
+		configPromise = oidc
+			.discovery(
+				new URL(issuer),
+				clientId,
+				undefined,
+				oidc.None(),
+				dev ? { execute: [oidc.allowInsecureRequests] } : undefined
+			)
+			.catch((err) => {
+				configPromise = null;
+				throw err;
+			});
 	}
 	return configPromise;
 }
