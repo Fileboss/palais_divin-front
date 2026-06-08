@@ -15,22 +15,40 @@ paths:
                 $ref: "#/components/schemas/InvitationResponse"
           description: OK
       tags:
-      - invitation-rest-controller
+        - invitation-rest-controller
   /api/v1/admin/restaurants/{id}:
     delete:
       operationId: delete
       parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-          format: uuid
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           description: OK
       tags:
-      - admin-restaurant-rest-controller
+        - admin-restaurant-rest-controller
+  /api/v1/admin/tags:
+    post:
+      operationId: create_2
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTagRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TagResponse"
+          description: OK
+      tags:
+        - admin-tag-rest-controller
   /api/v1/public/ping:
     get:
       operationId: ping
@@ -42,33 +60,71 @@ paths:
                 $ref: "#/components/schemas/PingResponse"
           description: OK
       tags:
-      - ping-controller
+        - ping-controller
   /api/v1/public/restaurants:
     get:
-      operationId: list_1
+      operationId: list_3
       parameters:
-      - in: query
-        name: cursor
-        required: false
-        schema:
-          type: string
-      - in: query
-        name: size
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 20
-          maximum: 100
-          minimum: 1
-      - in: query
-        name: sort
-        required: false
-        schema:
-          type: string
-          default: CREATED_AT_DESC
-          enum:
-          - CREATED_AT_DESC
+        - in: query
+          name: cursor
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: size
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+        - in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+            default: CREATED_AT_DESC
+            enum:
+              - CREATED_AT_DESC
+              - RATING_DESC
+              - NAME_ASC
+              - DISTANCE_ASC
+        - in: query
+          name: tag
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              maxLength: 64
+              minLength: 0
+              pattern: "^[a-z0-9]+(-[a-z0-9]+)*$"
+            maxItems: 10
+            minItems: 0
+        - in: query
+          name: name
+          required: false
+          schema:
+            type: string
+            maxLength: 100
+            minLength: 0
+        - in: query
+          name: lat
+          required: false
+          schema:
+            type: number
+            format: double
+            maximum: 90.0
+            minimum: -90.0
+        - in: query
+          name: lng
+          required: false
+          schema:
+            type: number
+            format: double
+            maximum: 180.0
+            minimum: -180.0
       responses:
         "200":
           content:
@@ -77,17 +133,17 @@ paths:
                 $ref: "#/components/schemas/RestaurantsPageResponse"
           description: OK
       tags:
-      - public-restaurant-rest-controller
+        - public-restaurant-rest-controller
   /api/v1/public/restaurants/{id}:
     get:
-      operationId: get_1
+      operationId: get_2
       parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-          format: uuid
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           content:
@@ -96,39 +152,39 @@ paths:
                 $ref: "#/components/schemas/RestaurantResponse"
           description: OK
       tags:
-      - public-restaurant-rest-controller
+        - public-restaurant-rest-controller
   /api/v1/public/restaurants/{restaurantId}/reviews:
     get:
-      operationId: list_2
+      operationId: list_4
       parameters:
-      - in: path
-        name: restaurantId
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - in: query
-        name: cursor
-        required: false
-        schema:
-          type: string
-      - in: query
-        name: size
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 20
-          maximum: 100
-          minimum: 1
-      - in: query
-        name: sort
-        required: false
-        schema:
-          type: string
-          default: CREATED_AT_DESC
-          enum:
-          - CREATED_AT_DESC
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: cursor
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: size
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+        - in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+            default: CREATED_AT_DESC
+            enum:
+              - CREATED_AT_DESC
       responses:
         "200":
           content:
@@ -137,23 +193,23 @@ paths:
                 $ref: "#/components/schemas/ReviewsPageResponse"
           description: OK
       tags:
-      - public-review-rest-controller
+        - public-review-rest-controller
   /api/v1/public/restaurants/{restaurantId}/reviews/author/{authorId}:
     get:
       operationId: getByAuthor
       parameters:
-      - in: path
-        name: restaurantId
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - in: path
-        name: authorId
-        required: true
-        schema:
-          type: string
-          format: uuid
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: authorId
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           content:
@@ -162,7 +218,7 @@ paths:
                 $ref: "#/components/schemas/ReviewResponse"
           description: OK
       tags:
-      - public-review-rest-controller
+        - public-review-rest-controller
   /api/v1/public/signup:
     post:
       operationId: signup
@@ -180,17 +236,81 @@ paths:
                 $ref: "#/components/schemas/SignupResponse"
           description: OK
       tags:
-      - signup-rest-controller
+        - signup-rest-controller
+  /api/v1/public/tags:
+    get:
+      operationId: list_2
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TagCatalogResponse"
+          description: OK
+      tags:
+        - public-tag-rest-controller
+  /api/v1/public/users/{userId}:
+    get:
+      operationId: get_1
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PublicUserResponse"
+          description: OK
+      tags:
+        - public-user-rest-controller
+  /api/v1/public/users/{userId}/reviews:
+    get:
+      operationId: list_1
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: cursor
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: size
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthorReviewsPageResponse"
+          description: OK
+      tags:
+        - public-user-reviews-rest-controller
   /api/v1/user/connections/{targetId}:
     post:
       operationId: connect
       parameters:
-      - in: path
-        name: targetId
-        required: true
-        schema:
-          type: string
-          format: uuid
+        - in: path
+          name: targetId
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           content:
@@ -199,33 +319,39 @@ paths:
                 $ref: "#/components/schemas/ConnectionResponse"
           description: OK
       tags:
-      - connection-rest-controller
+        - connection-rest-controller
   /api/v1/user/recommendations:
     get:
       operationId: list
       parameters:
-      - in: query
-        name: cursor
-        required: false
-        schema:
-          type: string
-      - in: query
-        name: size
-        required: false
-        schema:
-          type: integer
-          format: int32
-          default: 20
-          maximum: 100
-          minimum: 1
-      - in: query
-        name: sort
-        required: false
-        schema:
-          type: string
-          default: AFFINITY_DESC
-          enum:
-          - AFFINITY_DESC
+        - in: query
+          name: cursor
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: size
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+        - in: query
+          name: sort
+          required: false
+          schema:
+            type: string
+            default: AFFINITY_DESC
+            enum:
+              - AFFINITY_DESC
+        - in: query
+          name: includeOwn
+          required: false
+          schema:
+            type: boolean
+            default: false
       responses:
         "200":
           content:
@@ -234,7 +360,7 @@ paths:
                 $ref: "#/components/schemas/RecommendationsPageResponse"
           description: OK
       tags:
-      - recommendation-rest-controller
+        - recommendation-rest-controller
   /api/v1/user/restaurants:
     post:
       operationId: create_1
@@ -252,17 +378,17 @@ paths:
                 $ref: "#/components/schemas/RestaurantResponse"
           description: OK
       tags:
-      - restaurant-rest-controller
+        - restaurant-rest-controller
   /api/v1/user/restaurants/{id}/affinity:
     get:
       operationId: get
       parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-          format: uuid
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           content:
@@ -271,17 +397,91 @@ paths:
                 $ref: "#/components/schemas/RestaurantAffinityResponse"
           description: OK
       tags:
-      - restaurant-affinity-rest-controller
+        - restaurant-affinity-rest-controller
+  /api/v1/user/restaurants/{restaurantId}/photos:
+    post:
+      operationId: register
+      parameters:
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterPhotoRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PhotoResponse"
+          description: OK
+      tags:
+        - photo-rest-controller
+  /api/v1/user/restaurants/{restaurantId}/photos/upload-url:
+    post:
+      operationId: mint
+      parameters:
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PhotoUploadUrlResponse"
+          description: OK
+      tags:
+        - photo-rest-controller
+  /api/v1/user/restaurants/{restaurantId}/photos/{photoId}/download-url:
+    get:
+      operationId: downloadUrl
+      parameters:
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: photoId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PhotoDownloadUrlResponse"
+          description: OK
+      tags:
+        - photo-rest-controller
   /api/v1/user/restaurants/{restaurantId}/reviews:
     get:
       operationId: getMyReview
       parameters:
-      - in: path
-        name: restaurantId
-        required: true
-        schema:
-          type: string
-          format: uuid
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           content:
@@ -290,21 +490,21 @@ paths:
                 $ref: "#/components/schemas/ReviewResponse"
           description: OK
       tags:
-      - review-rest-controller
+        - review-rest-controller
     post:
       operationId: create
       parameters:
-      - in: path
-        name: restaurantId
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - in: header
-        name: Idempotency-Key
-        required: false
-        schema:
-          type: string
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: header
+          name: Idempotency-Key
+          required: false
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -319,16 +519,16 @@ paths:
                 $ref: "#/components/schemas/ReviewResponse"
           description: OK
       tags:
-      - review-rest-controller
+        - review-rest-controller
     put:
       operationId: update
       parameters:
-      - in: path
-        name: restaurantId
-        required: true
-        schema:
-          type: string
-          format: uuid
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: string
+            format: uuid
       requestBody:
         content:
           application/json:
@@ -343,9 +543,103 @@ paths:
                 $ref: "#/components/schemas/ReviewResponse"
           description: OK
       tags:
-      - review-rest-controller
+        - review-rest-controller
+  /api/v1/user/restaurants/{restaurantId}/tags/{tagId}:
+    delete:
+      operationId: detach
+      parameters:
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: tagId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+      tags:
+        - restaurant-tag-rest-controller
+    post:
+      operationId: attach
+      parameters:
+        - in: path
+          name: restaurantId
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: path
+          name: tagId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RestaurantTagResponse"
+          description: OK
+      tags:
+        - restaurant-tag-rest-controller
 components:
   schemas:
+    AuthorReviewResponse:
+      type: object
+      properties:
+        comment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        rating:
+          type: integer
+          format: int32
+        restaurant:
+          $ref: "#/components/schemas/AuthorReviewRestaurantRef"
+        reviewId:
+          type: string
+          format: uuid
+    AuthorReviewRestaurantRef:
+      type: object
+      properties:
+        address:
+          type: string
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    AuthorReviewsPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuthorReviewResponse"
+        page:
+          $ref: "#/components/schemas/PageMeta"
+    CategoryGroup:
+      type: object
+      properties:
+        category:
+          type: string
+          enum:
+            - FOOD
+            - REGIME
+            - PLACE
+            - VENUE_TYPE
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/TagResponse"
     ConnectionResponse:
       type: object
       properties:
@@ -375,8 +669,8 @@ components:
           maximum: 180
           minimum: -180
       required:
-      - latitude
-      - longitude
+        - latitude
+        - longitude
     CreateRestaurantRequest:
       type: object
       properties:
@@ -387,8 +681,8 @@ components:
           type: string
           minLength: 1
       required:
-      - address
-      - name
+        - address
+        - name
     CreateReviewRequest:
       type: object
       properties:
@@ -401,6 +695,29 @@ components:
           format: int32
           maximum: 5
           minimum: 1
+    CreateTagRequest:
+      type: object
+      properties:
+        category:
+          type: string
+          enum:
+            - FOOD
+            - REGIME
+            - PLACE
+            - VENUE_TYPE
+        label:
+          type: string
+          maxLength: 127
+          minLength: 0
+        slug:
+          type: string
+          maxLength: 64
+          minLength: 0
+          pattern: "^[a-z0-9]+(-[a-z0-9]+)*$"
+      required:
+        - category
+        - label
+        - slug
     InvitationResponse:
       type: object
       properties:
@@ -422,6 +739,45 @@ components:
         size:
           type: integer
           format: int32
+    PhotoDownloadUrlResponse:
+      type: object
+      properties:
+        downloadUrl:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        objectKey:
+          type: string
+    PhotoResponse:
+      type: object
+      properties:
+        authorId:
+          type: string
+          format: uuid
+        contentType:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        id:
+          type: string
+          format: uuid
+        objectKey:
+          type: string
+        restaurantId:
+          type: string
+          format: uuid
+    PhotoUploadUrlResponse:
+      type: object
+      properties:
+        expiresAt:
+          type: string
+          format: date-time
+        objectKey:
+          type: string
+        uploadUrl:
+          type: string
     PingResponse:
       type: object
       properties:
@@ -430,6 +786,17 @@ components:
         ts:
           type: string
           format: date-time
+    PublicUserResponse:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        displayName:
+          type: string
+        id:
+          type: string
+          format: uuid
     RecommendationResponse:
       type: object
       properties:
@@ -461,6 +828,20 @@ components:
             $ref: "#/components/schemas/RecommendationResponse"
         page:
           $ref: "#/components/schemas/PageMeta"
+    RegisterPhotoRequest:
+      type: object
+      properties:
+        contentType:
+          type: string
+          maxLength: 127
+          minLength: 0
+        objectKey:
+          type: string
+          maxLength: 512
+          minLength: 0
+      required:
+        - contentType
+        - objectKey
     RestaurantAffinityResponse:
       type: object
       properties:
@@ -484,6 +865,9 @@ components:
         createdAt:
           type: string
           format: date-time
+        distanceMetres:
+          type: number
+          format: double
         id:
           type: string
           format: uuid
@@ -491,6 +875,25 @@ components:
           $ref: "#/components/schemas/CoordinatesDto"
         name:
           type: string
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/TagSummary"
+    RestaurantTagResponse:
+      type: object
+      properties:
+        attachedAt:
+          type: string
+          format: date-time
+        attachedBy:
+          type: string
+          format: uuid
+        restaurantId:
+          type: string
+          format: uuid
+        tagId:
+          type: string
+          format: uuid
     RestaurantsPageResponse:
       type: object
       properties:
@@ -503,6 +906,8 @@ components:
     ReviewResponse:
       type: object
       properties:
+        authorDisplayName:
+          type: string
         authorId:
           type: string
           format: uuid
@@ -546,10 +951,10 @@ components:
           type: string
           minLength: 1
       required:
-      - displayName
-      - email
-      - password
-      - token
+        - displayName
+        - email
+        - password
+        - token
     SignupResponse:
       type: object
       properties:
@@ -563,3 +968,44 @@ components:
         id:
           type: string
           format: uuid
+    TagCatalogResponse:
+      type: object
+      properties:
+        groups:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryGroup"
+    TagResponse:
+      type: object
+      properties:
+        category:
+          type: string
+          enum:
+            - FOOD
+            - REGIME
+            - PLACE
+            - VENUE_TYPE
+        createdAt:
+          type: string
+          format: date-time
+        id:
+          type: string
+          format: uuid
+        label:
+          type: string
+        slug:
+          type: string
+    TagSummary:
+      type: object
+      properties:
+        category:
+          type: string
+          enum:
+            - FOOD
+            - REGIME
+            - PLACE
+            - VENUE_TYPE
+        label:
+          type: string
+        slug:
+          type: string

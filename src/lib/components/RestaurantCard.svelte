@@ -31,6 +31,16 @@
 		ondelete?: (id: string) => void;
 	} = $props();
 
+	const thumbnailUrl = $derived(restaurant.thumbnail?.url ?? null);
+	const affinityLabel = $derived(
+		typeof restaurant.affinity === 'number'
+			? restaurant.affinity.toLocaleString(getLocale(), {
+					minimumFractionDigits: 1,
+					maximumFractionDigits: 1
+				})
+			: null
+	);
+
 	let deleting = $state(false);
 	let deleteError = $state<string | null>(null);
 
@@ -124,6 +134,21 @@
 <article
 	class="flex flex-row overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm transition hover:shadow-md"
 >
+	{#if thumbnailUrl}
+		<img src={thumbnailUrl} alt="" class="size-28 flex-shrink-0 object-cover" />
+	{:else}
+		<div
+			role="img"
+			aria-label={m.photo_placeholder_aria()}
+			class="flex size-28 flex-shrink-0 items-center justify-center bg-stone-100 text-stone-300"
+		>
+			<svg viewBox="0 0 24 24" fill="currentColor" class="size-8" aria-hidden="true">
+				<path
+					d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Zm2 0v9.59l3.3-3.3a1 1 0 0 1 1.4 0l3.3 3.3 2.3-2.3a1 1 0 0 1 1.4 0L20 14.59V5H6Zm10 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"
+				/>
+			</svg>
+		</div>
+	{/if}
 	<div class="flex flex-1 flex-col gap-2 p-4">
 		<h3 class="text-base font-semibold text-stone-900">{restaurant.name}</h3>
 		{#if restaurant.address}
@@ -137,6 +162,11 @@
 				<span class="text-stone-400">{m.review_no_ratings_yet()}</span>
 			{/if}
 		</p>
+		{#if affinityLabel}
+			<p class="text-sm font-medium text-emerald-600">
+				{m.recommendations_affinity()}: {affinityLabel}
+			</p>
+		{/if}
 		{#if affinity && affinity.recommenderCount > 0}
 			<p class="text-sm font-medium text-emerald-600">
 				{m.recommendations_recommenders({ count: affinity.recommenderCount })}

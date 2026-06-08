@@ -82,5 +82,22 @@
 	"review_no_ratings_yet": "No ratings yet",
 	"restaurant_delete": "删除",
 	"restaurant_delete_confirm": "删除此餐厅？",
-	"error_delete_failed": "删除失败，请重试。"
+	"error_delete_failed": "删除失败，请重试。",
+	"photo_add_label": "照片（可选）",
+	"photo_select_hint": "最多 5 张图片，每张 10 MB。",
+	"photo_remove_aria": "移除 {name}",
+	"photo_uploading_progress": "正在上传第 {done} / {total} 张照片…",
+	"photo_upload_failed_one": "{name} 上传失败。",
+	"photo_upload_partial_title": "部分照片上传失败。",
+	"photo_upload_partial_continue": "继续",
+	"photo_too_many": "最多 5 张照片。",
+	"photo_too_large": "{name} 超过 10 MB。",
+	"photo_bad_type": "{name} 不是图片。",
+	"photo_placeholder_aria": "此餐厅暂无照片",
+	"sort_disabled_signin": "登录后按亲和度排序",
+	"gallery_close": "关闭",
+	"gallery_lightbox_label": "照片查看器",
+	"gallery_photo_aria": "第 {index} / {total} 张照片",
+	"distance_km": "{value} 公里",
+	"distance_m": "{value} 米"
 }

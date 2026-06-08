@@ -82,5 +82,22 @@
 	"review_no_ratings_yet": "No ratings yet",
 	"restaurant_delete": "Eliminar",
 	"restaurant_delete_confirm": "¿Eliminar este restaurante?",
-	"error_delete_failed": "Error al eliminar. Inténtalo de nuevo."
+	"error_delete_failed": "Error al eliminar. Inténtalo de nuevo.",
+	"photo_add_label": "Fotos (opcional)",
+	"photo_select_hint": "Hasta 5 imágenes, 10 MB cada una.",
+	"photo_remove_aria": "Eliminar {name}",
+	"photo_uploading_progress": "Subiendo foto {done} de {total}…",
+	"photo_upload_failed_one": "Error al subir {name}.",
+	"photo_upload_partial_title": "Algunas fotos no se pudieron subir.",
+	"photo_upload_partial_continue": "Continuar de todos modos",
+	"photo_too_many": "Máximo 5 fotos.",
+	"photo_too_large": "{name} supera 10 MB.",
+	"photo_bad_type": "{name} no es una imagen.",
+	"photo_placeholder_aria": "Sin foto para este restaurante",
+	"sort_disabled_signin": "Inicia sesión para ordenar por afinidad",
+	"gallery_close": "Cerrar",
+	"gallery_lightbox_label": "Visor de fotos",
+	"gallery_photo_aria": "Foto {index} de {total}",
+	"distance_km": "{value} km",
+	"distance_m": "{value} m"
 }

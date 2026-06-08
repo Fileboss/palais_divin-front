@@ -82,5 +82,22 @@
 	"review_no_ratings_yet": "No ratings yet",
 	"restaurant_delete": "削除",
 	"restaurant_delete_confirm": "このレストランを削除しますか？",
-	"error_delete_failed": "削除に失敗しました。もう一度お試しください。"
+	"error_delete_failed": "削除に失敗しました。もう一度お試しください。",
+	"photo_add_label": "写真（任意）",
+	"photo_select_hint": "最大 5 枚、各 10 MB まで。",
+	"photo_remove_aria": "{name} を削除",
+	"photo_uploading_progress": "写真をアップロード中 {done}/{total}…",
+	"photo_upload_failed_one": "{name} のアップロードに失敗しました。",
+	"photo_upload_partial_title": "一部の写真をアップロードできませんでした。",
+	"photo_upload_partial_continue": "そのまま続行",
+	"photo_too_many": "写真は最大 5 枚です。",
+	"photo_too_large": "{name} は 10 MB を超えています。",
+	"photo_bad_type": "{name} は画像ではありません。",
+	"photo_placeholder_aria": "このレストランに写真はありません",
+	"sort_disabled_signin": "親和性で並べ替えるにはサインインしてください",
+	"gallery_close": "閉じる",
+	"gallery_lightbox_label": "写真ビューア",
+	"gallery_photo_aria": "写真 {index} / {total}",
+	"distance_km": "{value} km",
+	"distance_m": "{value} m"
 }

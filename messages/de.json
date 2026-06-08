@@ -82,5 +82,22 @@
 	"review_no_ratings_yet": "No ratings yet",
 	"restaurant_delete": "Löschen",
 	"restaurant_delete_confirm": "Dieses Restaurant löschen?",
-	"error_delete_failed": "Löschen fehlgeschlagen. Bitte erneut versuchen."
+	"error_delete_failed": "Löschen fehlgeschlagen. Bitte erneut versuchen.",
+	"photo_add_label": "Fotos (optional)",
+	"photo_select_hint": "Bis zu 5 Bilder, je 10 MB.",
+	"photo_remove_aria": "{name} entfernen",
+	"photo_uploading_progress": "Foto {done} von {total} wird hochgeladen…",
+	"photo_upload_failed_one": "Upload von {name} fehlgeschlagen.",
+	"photo_upload_partial_title": "Einige Fotos konnten nicht hochgeladen werden.",
+	"photo_upload_partial_continue": "Trotzdem fortfahren",
+	"photo_too_many": "Maximal 5 Fotos.",
+	"photo_too_large": "{name} überschreitet 10 MB.",
+	"photo_bad_type": "{name} ist kein Bild.",
+	"photo_placeholder_aria": "Kein Foto für dieses Restaurant",
+	"sort_disabled_signin": "Anmelden, um nach Affinität zu sortieren",
+	"gallery_close": "Schließen",
+	"gallery_lightbox_label": "Fotoanzeige",
+	"gallery_photo_aria": "Foto {index} von {total}",
+	"distance_km": "{value} km",
+	"distance_m": "{value} m"
 }

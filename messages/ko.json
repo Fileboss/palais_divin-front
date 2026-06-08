@@ -82,5 +82,22 @@
 	"review_no_ratings_yet": "No ratings yet",
 	"restaurant_delete": "삭제",
 	"restaurant_delete_confirm": "이 레스토랑을 삭제하시겠습니까?",
-	"error_delete_failed": "삭제에 실패했습니다. 다시 시도해 주세요."
+	"error_delete_failed": "삭제에 실패했습니다. 다시 시도해 주세요.",
+	"photo_add_label": "사진 (선택)",
+	"photo_select_hint": "최대 5장, 각 10 MB까지.",
+	"photo_remove_aria": "{name} 제거",
+	"photo_uploading_progress": "사진 업로드 중 {done}/{total}…",
+	"photo_upload_failed_one": "{name} 업로드 실패.",
+	"photo_upload_partial_title": "일부 사진을 업로드하지 못했습니다.",
+	"photo_upload_partial_continue": "계속하기",
+	"photo_too_many": "최대 5장의 사진만 가능합니다.",
+	"photo_too_large": "{name}이(가) 10 MB를 초과합니다.",
+	"photo_bad_type": "{name}은(는) 이미지가 아닙니다.",
+	"photo_placeholder_aria": "이 레스토랑에 사진이 없습니다",
+	"sort_disabled_signin": "친밀도 정렬을 사용하려면 로그인하세요",
+	"gallery_close": "닫기",
+	"gallery_lightbox_label": "사진 뷰어",
+	"gallery_photo_aria": "사진 {index} / {total}",
+	"distance_km": "{value} km",
+	"distance_m": "{value} m"
 }

@@ -14,6 +14,9 @@ export interface RestaurantResponse {
 	address?: string;
 	location?: CoordinatesDto;
 	avgRating?: number;
+	distanceMetres?: number | null;
+	thumbnail?: PhotoSummary | null;
+	affinity?: number | null;
 	createdAt: string;
 }
 
@@ -75,6 +78,8 @@ export interface RecommendationResponse {
 	longitude?: number;
 	affinity: number;
 	recommenderCount: number;
+	avgRating?: number | null;
+	distanceMetres?: number | null;
 }
 
 export interface RecommendationsPageResponse {
@@ -86,6 +91,43 @@ export interface RestaurantAffinityResponse {
 	restaurantId: string;
 	affinity: number;
 	recommenderCount: number;
+}
+
+export interface PhotoResponse {
+	id: string;
+	restaurantId: string;
+	authorId: string;
+	contentType: string;
+	objectKey: string;
+	createdAt: string;
+}
+
+export interface PhotoSummary {
+	id: string;
+	url: string;
+	expiresAt: string;
+}
+
+export interface PhotosPageResponse {
+	data: PhotoSummary[];
+	page: PageMeta;
+}
+
+export interface PhotoUploadUrlResponse {
+	uploadUrl: string;
+	objectKey: string;
+	expiresAt: string;
+}
+
+export interface PhotoDownloadUrlResponse {
+	downloadUrl: string;
+	objectKey: string;
+	expiresAt: string;
+}
+
+export interface RegisterPhotoRequest {
+	contentType: string;
+	objectKey: string;
 }
 
 export interface ConnectionResponse {

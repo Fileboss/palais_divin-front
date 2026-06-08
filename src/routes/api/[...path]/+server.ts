@@ -48,7 +48,7 @@ async function proxy(event: Parameters<RequestHandler>[0]): Promise<Response> {
 		if (lower === 'cookie' || lower === 'host') continue;
 		headers.set(name, value);
 	}
-	if (requiresAuth && session) headers.set('Authorization', `Bearer ${session.access_token}`);
+	if (session) headers.set('Authorization', `Bearer ${session.access_token}`);
 
 	const method = event.request.method.toUpperCase();
 	const body = method === 'GET' || method === 'HEAD' ? undefined : event.request.body;

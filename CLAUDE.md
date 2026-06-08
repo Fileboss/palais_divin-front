@@ -86,6 +86,17 @@ in short-lived HttpOnly cookies; tokens land in `pd_session` (AES-256-GCM via `j
 `event.locals.session` (typed in `src/app.d.ts`) carries `{ sub, username, roles }` for use
 in load functions and pages — **never** tokens.
 
+### Tracking backend gaps
+
+`doc/openapi.yaml` is the contract; `doc/missing.md` is the running list of endpoints
+or response-shape changes the frontend needs but the backend hasn't shipped yet.
+Whenever a task can't be completed without a missing or insufficient endpoint,
+**append an entry to `doc/missing.md`** before shipping the partial frontend work —
+do not just leave a TODO in code. Each entry states what the frontend is trying to
+do, the gap in the current spec, what the frontend looks like today (placeholder /
+disabled / etc.), and a proposed endpoint or schema shape. Remove the entry once
+the matching change lands in `doc/openapi.yaml`.
+
 ### Deployment
 
 The infra repo (`../qui-est-ce_infra/`) is a multi-site Docker Compose stack behind a single

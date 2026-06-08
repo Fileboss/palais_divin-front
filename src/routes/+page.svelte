@@ -1,17 +1,21 @@
 <script lang="ts">
+	import type { Pathname } from '$app/types';
 	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import * as m from '$lib/paraglide/messages';
 	import Header from '$lib/components/Header.svelte';
 	import RestaurantList from '$lib/components/RestaurantList.svelte';
 	import CreateRestaurantModal from '$lib/components/CreateRestaurantModal.svelte';
-	import { listRestaurantsPublic } from '$lib/api/restaurants';
+	import SortMenu, { type SortKey, type SortOption } from '$lib/components/SortMenu.svelte';
+	import LocationPicker from '$lib/components/LocationPicker.svelte';
+	import { listRestaurantsPublic, type RestaurantsPublicSort } from '$lib/api/restaurants';
 	import { getMyReview } from '$lib/api/reviews';
 	import type { PageMeta, RestaurantResponse, ReviewResponse } from '$lib/api/types';
+	import { loadSortLocation, saveSortLocation, type SortLocation } from '$lib/sortLocation';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
 
-	// Local writable copy of the SSR snapshot; mutated by load-more and create.
 	// svelte-ignore state_referenced_locally
 	let restaurants = $state<RestaurantResponse[]>(data.restaurants);
 	// svelte-ignore state_referenced_locally
@@ -22,9 +26,66 @@
 	let loadingMore = $state(false);
 	let loadMoreError = $state<string | null>(null);
 
+	$effect(() => {
+		restaurants = data.restaurants;
+		meta = data.meta;
+		myReviews = { ...data.myReviews };
+		loadMoreError = null;
+	});
+
 	const isAuthed = $derived(!!data.user);
 	const userId = $derived(data.user?.sub ?? null);
 	const isAdmin = $derived(data.user?.roles.includes('ADMIN') ?? false);
+
+	const currentSort = $derived<SortKey>(data.sort ?? 'CREATED_AT_DESC');
+	const currentLat = $derived<number | undefined>(data.lat);
+	const currentLng = $derived<number | undefined>(data.lng);
+	const isDistance = $derived(currentSort === 'DISTANCE_ASC');
+
+	let pickerOpen = $state(false);
+
+	const options = $derived<SortOption[]>([
+		{ key: 'CREATED_AT_DESC', label: m.sort_newest() },
+		{ key: 'RATING_DESC', label: m.sort_rating() },
+		{ key: 'DISTANCE_ASC', label: m.sort_distance() },
+		{
+			key: 'AFFINITY_DESC',
+			label: m.sort_affinity(),
+			disabled: !isAuthed,
+			disabledReason: isAuthed ? undefined : m.sort_disabled_signin()
+		},
+		{ key: 'NAME_ASC', label: m.sort_name() }
+	]);
+
+	function navigateTo(sort: SortKey, lat?: number, lng?: number) {
+		const params: string[] = [];
+		if (sort !== 'CREATED_AT_DESC') params.push(`sort=${encodeURIComponent(sort)}`);
+		if (sort === 'DISTANCE_ASC' && lat != null && lng != null) {
+			params.push(`lat=${encodeURIComponent(String(lat))}`);
+			params.push(`lng=${encodeURIComponent(String(lng))}`);
+		}
+		const target = (params.length > 0 ? `/?${params.join('&')}` : '/') as Pathname;
+		goto(resolve(target), { keepFocus: true, noScroll: true, invalidateAll: true });
+	}
+
+	function handleSortChange(key: SortKey) {
+		if (key === 'DISTANCE_ASC') {
+			const stored = loadSortLocation();
+			if (stored) {
+				navigateTo('DISTANCE_ASC', stored.lat, stored.lng);
+			} else {
+				pickerOpen = true;
+			}
+			return;
+		}
+		navigateTo(key);
+	}
+
+	function handleLocationPicked(loc: SortLocation) {
+		saveSortLocation(loc);
+		pickerOpen = false;
+		navigateTo('DISTANCE_ASC', loc.lat, loc.lng);
+	}
 
 	async function handleLoadMore() {
 		if (!meta.hasNext || !meta.nextCursor || loadingMore) return;
@@ -33,12 +94,14 @@
 		try {
 			const next = await listRestaurantsPublic(fetch, {
 				cursor: meta.nextCursor,
-				size: meta.size
+				size: meta.size,
+				sort: currentSort as RestaurantsPublicSort,
+				lat: currentLat,
+				lng: currentLng
 			});
 			restaurants = [...restaurants, ...next.data];
 			meta = next.page;
 			if (userId && next.data.length > 0) {
-				const sub = userId;
 				const entries = await Promise.all(
 					next.data.map(async (r) => {
 						try {
@@ -85,22 +148,41 @@
 			<h1 class="text-2xl font-bold text-stone-900">{m.home_title()}</h1>
 			<p class="mt-1 text-sm text-stone-600">{m.home_subtitle()}</p>
 		</div>
-		{#if isAuthed}
-			<button
-				type="button"
-				onclick={() => (modalOpen = true)}
-				class="rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-stone-800"
-			>
-				+ {m.restaurant_add()}
-			</button>
-		{:else}
-			<a
-				href={resolve('/auth/login')}
-				class="text-sm font-medium text-stone-600 underline-offset-4 hover:text-stone-900 hover:underline"
-			>
-				{m.home_signin_to_add()}
-			</a>
-		{/if}
+		<div class="flex flex-wrap items-center gap-3">
+			<div class="relative">
+				<SortMenu value={currentSort} {options} onchange={handleSortChange} />
+				<LocationPicker
+					open={pickerOpen}
+					onpick={handleLocationPicked}
+					onclose={() => (pickerOpen = false)}
+				/>
+			</div>
+			{#if isDistance}
+				<button
+					type="button"
+					onclick={() => (pickerOpen = true)}
+					class="text-xs font-medium text-stone-500 underline-offset-4 hover:text-stone-900 hover:underline"
+				>
+					{m.sort_loc_change()}
+				</button>
+			{/if}
+			{#if isAuthed}
+				<button
+					type="button"
+					onclick={() => (modalOpen = true)}
+					class="rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-stone-800"
+				>
+					+ {m.restaurant_add()}
+				</button>
+			{:else}
+				<a
+					href={resolve('/auth/login')}
+					class="text-sm font-medium text-stone-600 underline-offset-4 hover:text-stone-900 hover:underline"
+				>
+					{m.home_signin_to_add()}
+				</a>
+			{/if}
+		</div>
 	</div>
 
 	<RestaurantList

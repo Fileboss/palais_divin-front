@@ -82,5 +82,22 @@
 	"error_connect_failed": "Échec de l'ajout. Réessayez.",
 	"restaurant_delete": "Supprimer",
 	"restaurant_delete_confirm": "Supprimer ce restaurant ?",
-	"error_delete_failed": "Échec de la suppression. Réessayez."
+	"error_delete_failed": "Échec de la suppression. Réessayez.",
+	"photo_add_label": "Photos (optionnel)",
+	"photo_select_hint": "Jusqu'à 5 images, 10 Mo chacune.",
+	"photo_remove_aria": "Retirer {name}",
+	"photo_uploading_progress": "Envoi de la photo {done} sur {total}…",
+	"photo_upload_failed_one": "Échec de l'envoi de {name}.",
+	"photo_upload_partial_title": "Certaines photos n'ont pas été envoyées.",
+	"photo_upload_partial_continue": "Continuer quand même",
+	"photo_too_many": "5 photos maximum.",
+	"photo_too_large": "{name} dépasse 10 Mo.",
+	"photo_bad_type": "{name} n'est pas une image.",
+	"photo_placeholder_aria": "Aucune photo pour ce restaurant",
+	"sort_disabled_signin": "Connectez-vous pour trier par affinité",
+	"gallery_close": "Fermer",
+	"gallery_lightbox_label": "Visionneuse de photos",
+	"gallery_photo_aria": "Photo {index} sur {total}",
+	"distance_km": "{value} km",
+	"distance_m": "{value} m"
 }

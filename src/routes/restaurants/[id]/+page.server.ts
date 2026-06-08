@@ -1,22 +1,30 @@
 import { error } from '@sveltejs/kit';
+import { listPublicRestaurantPhotos } from '$lib/api/photos';
 import { getRestaurantPublic } from '$lib/api/restaurants';
 import { getMyReview, listReviewsPublic } from '$lib/api/reviews';
-import { ApiError } from '$lib/api/types';
+import { ApiError, type PhotosPageResponse } from '$lib/api/types';
 import type { PageServerLoad } from './$types';
+
+const EMPTY_PHOTOS: PhotosPageResponse = {
+	data: [],
+	page: { hasNext: false, size: 0 }
+};
 
 export const load: PageServerLoad = async ({ fetch, locals, params }) => {
 	try {
 		const sub = locals.session?.sub;
-		const [restaurant, reviewsPage, myReview] = await Promise.all([
+		const [restaurant, reviewsPage, myReview, photosPage] = await Promise.all([
 			getRestaurantPublic(fetch, params.id),
 			listReviewsPublic(fetch, params.id, { size: 20 }),
-			sub ? getMyReview(fetch, params.id).catch(() => null) : Promise.resolve(null)
+			sub ? getMyReview(fetch, params.id).catch(() => null) : Promise.resolve(null),
+			listPublicRestaurantPhotos(fetch, params.id, { size: 20 }).catch(() => EMPTY_PHOTOS)
 		]);
 		return {
 			restaurant,
 			reviews: reviewsPage.data,
 			reviewsMeta: reviewsPage.page,
-			myReview
+			myReview,
+			photos: photosPage
 		};
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 404) {

@@ -1,5 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import * as oidc from 'openid-client';
+import { dev } from '$app/environment';
 import { getOidcConfig } from '$lib/server/oidc';
 import {
 	PKCE_COOKIE,
@@ -10,7 +11,7 @@ import {
 } from '$lib/server/auth';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ url, cookies }) => {
+export const GET: RequestHandler = async ({ url, cookies, request }) => {
 	const expectedState = cookies.get(STATE_COOKIE);
 	const codeVerifier = cookies.get(PKCE_COOKIE);
 	const returnTo = cookies.get(RETURN_TO_COOKIE) ?? '/';
@@ -20,6 +21,15 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 	cookies.delete(RETURN_TO_COOKIE, { path: '/' });
 
 	if (!expectedState || !codeVerifier) {
+		if (dev) {
+			const cookieHeader = request.headers.get('cookie') ?? '<empty>';
+			const names = cookieHeader === '<empty>' ? [] : cookieHeader.split(';').map((c) => c.split('=')[0].trim());
+			console.error('[auth/callback] missing OAuth state cookies');
+			console.error('  state cookie present:', Boolean(expectedState));
+			console.error('  pkce cookie present:', Boolean(codeVerifier));
+			console.error('  cookies received:', names);
+			console.error('  referer:', request.headers.get('referer'));
+		}
 		error(400, 'Missing OAuth state — try signing in again.');
 	}
 

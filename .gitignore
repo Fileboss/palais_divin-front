@@ -32,3 +32,6 @@ project.inlang/cache/
 
 # Backend handoff (regenerated each milestone)
 HANDOFF.md
+
+# Local tracking of backend gaps
+doc/missing.md

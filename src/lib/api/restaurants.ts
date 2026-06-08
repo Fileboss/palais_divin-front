@@ -1,5 +1,6 @@
 import {
 	ApiError,
+	parseProblem,
 	type CreateRestaurantRequest,
 	type RestaurantAffinityResponse,
 	type RestaurantResponse,
@@ -10,7 +11,8 @@ type Fetcher = typeof fetch;
 
 async function parseOrThrow<T>(res: Response): Promise<T> {
 	if (!res.ok) {
-		throw new ApiError(res.status, `${res.status} ${res.statusText}`);
+		const problem = await parseProblem(res);
+		throw new ApiError(res.status, `${res.status} ${res.statusText}`, problem ?? undefined);
 	}
 	return (await res.json()) as T;
 }
@@ -18,13 +20,29 @@ async function parseOrThrow<T>(res: Response): Promise<T> {
 const USER_PATH = '/api/v1/user/restaurants';
 const PUBLIC_PATH = '/api/v1/public/restaurants';
 
+export type RestaurantsPublicSort =
+	| 'CREATED_AT_DESC'
+	| 'RATING_DESC'
+	| 'NAME_ASC'
+	| 'DISTANCE_ASC'
+	| 'AFFINITY_DESC';
+
 export async function listRestaurantsPublic(
 	fetcher: Fetcher,
-	options: { cursor?: string; size?: number } = {}
+	options: {
+		cursor?: string;
+		size?: number;
+		sort?: RestaurantsPublicSort;
+		lat?: number;
+		lng?: number;
+	} = {}
 ): Promise<RestaurantsPageResponse> {
 	const qs = new URLSearchParams();
 	if (options.cursor) qs.set('cursor', options.cursor);
 	if (options.size != null) qs.set('size', String(options.size));
+	if (options.sort) qs.set('sort', options.sort);
+	if (options.lat != null) qs.set('lat', String(options.lat));
+	if (options.lng != null) qs.set('lng', String(options.lng));
 	const url = qs.size > 0 ? `${PUBLIC_PATH}?${qs}` : PUBLIC_PATH;
 	const res = await fetcher(url, { headers: { Accept: 'application/json' } });
 	return parseOrThrow<RestaurantsPageResponse>(res);

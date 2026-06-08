@@ -3,6 +3,7 @@
 	import { getLocale } from '$lib/paraglide/runtime';
 	import * as m from '$lib/paraglide/messages';
 	import Header from '$lib/components/Header.svelte';
+	import PhotoGallery from '$lib/components/PhotoGallery.svelte';
 	import ReviewForm from '$lib/components/ReviewForm.svelte';
 	import ReviewList from '$lib/components/ReviewList.svelte';
 	import { listReviewsPublic } from '$lib/api/reviews';
@@ -129,6 +130,8 @@
 			<time datetime={data.restaurant.createdAt}>{createdAt}</time>
 		</p>
 	</div>
+
+	<PhotoGallery restaurantId={data.restaurant.id} initial={data.photos} />
 
 	<section class="mt-8">
 		<div class="mb-4 flex items-center justify-between gap-4">
