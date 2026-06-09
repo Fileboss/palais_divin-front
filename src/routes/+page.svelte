@@ -2,16 +2,22 @@
 	import type { Pathname } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import * as m from '$lib/paraglide/messages';
 	import Header from '$lib/components/Header.svelte';
 	import RestaurantList from '$lib/components/RestaurantList.svelte';
 	import CreateRestaurantModal from '$lib/components/CreateRestaurantModal.svelte';
 	import SortMenu, { type SortKey, type SortOption } from '$lib/components/SortMenu.svelte';
 	import LocationPicker from '$lib/components/LocationPicker.svelte';
+	import RestaurantFilters, {
+		emptyFilterState,
+		type FilterState
+	} from '$lib/components/RestaurantFilters.svelte';
 	import { listRestaurantsPublic, type RestaurantsPublicSort } from '$lib/api/restaurants';
 	import { getMyReview } from '$lib/api/reviews';
 	import type { PageMeta, RestaurantResponse, ReviewResponse } from '$lib/api/types';
 	import { loadSortLocation, saveSortLocation, type SortLocation } from '$lib/sortLocation';
+	import { appendFilterState } from '$lib/filterState';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -22,6 +28,8 @@
 	let meta = $state<PageMeta>(data.meta);
 	// svelte-ignore state_referenced_locally
 	let myReviews = $state<Record<string, ReviewResponse | null>>({ ...data.myReviews });
+	// svelte-ignore state_referenced_locally
+	let filters = $state<FilterState>(data.filters ?? emptyFilterState());
 	let modalOpen = $state(false);
 	let loadingMore = $state(false);
 	let loadMoreError = $state<string | null>(null);
@@ -30,6 +38,7 @@
 		restaurants = data.restaurants;
 		meta = data.meta;
 		myReviews = { ...data.myReviews };
+		filters = data.filters ?? emptyFilterState();
 		loadMoreError = null;
 	});
 
@@ -57,14 +66,20 @@
 		{ key: 'NAME_ASC', label: m.sort_name() }
 	]);
 
-	function navigateTo(sort: SortKey, lat?: number, lng?: number) {
-		const params: string[] = [];
-		if (sort !== 'CREATED_AT_DESC') params.push(`sort=${encodeURIComponent(sort)}`);
+	function navigateTo(
+		sort: SortKey,
+		lat?: number,
+		lng?: number,
+		nextFilters: FilterState = filters
+	) {
+		const qs = new SvelteURLSearchParams();
+		if (sort !== 'CREATED_AT_DESC') qs.set('sort', sort);
 		if (sort === 'DISTANCE_ASC' && lat != null && lng != null) {
-			params.push(`lat=${encodeURIComponent(String(lat))}`);
-			params.push(`lng=${encodeURIComponent(String(lng))}`);
+			qs.set('lat', String(lat));
+			qs.set('lng', String(lng));
 		}
-		const target = (params.length > 0 ? `/?${params.join('&')}` : '/') as Pathname;
+		appendFilterState(qs, nextFilters);
+		const target = (qs.size > 0 ? `/?${qs}` : '/') as Pathname;
 		goto(resolve(target), { keepFocus: true, noScroll: true, invalidateAll: true });
 	}
 
@@ -87,6 +102,11 @@
 		navigateTo('DISTANCE_ASC', loc.lat, loc.lng);
 	}
 
+	function handleFiltersApply(next: FilterState) {
+		filters = next;
+		navigateTo(currentSort, currentLat, currentLng, next);
+	}
+
 	async function handleLoadMore() {
 		if (!meta.hasNext || !meta.nextCursor || loadingMore) return;
 		loadingMore = true;
@@ -97,7 +117,12 @@
 				size: meta.size,
 				sort: currentSort as RestaurantsPublicSort,
 				lat: currentLat,
-				lng: currentLng
+				lng: currentLng,
+				tagGroups: filters.tagGroups,
+				name: filters.name,
+				dineIn: filters.dineIn,
+				takeOut: filters.takeOut,
+				delivery: filters.delivery
 			});
 			restaurants = [...restaurants, ...next.data];
 			meta = next.page;
@@ -183,6 +208,10 @@
 				</a>
 			{/if}
 		</div>
+	</div>
+
+	<div class="mb-6">
+		<RestaurantFilters bind:value={filters} onapply={handleFiltersApply} />
 	</div>
 
 	<RestaurantList

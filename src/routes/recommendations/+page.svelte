@@ -2,13 +2,19 @@
 	import type { Pathname } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import * as m from '$lib/paraglide/messages';
 	import Header from '$lib/components/Header.svelte';
 	import LocationPicker from '$lib/components/LocationPicker.svelte';
 	import SortMenu, { type SortKey, type SortOption } from '$lib/components/SortMenu.svelte';
+	import RestaurantFilters, {
+		emptyFilterState,
+		type FilterState
+	} from '$lib/components/RestaurantFilters.svelte';
 	import { listRecommendations, type RecommendationsSort } from '$lib/api/recommendations';
 	import { loadSortLocation, saveSortLocation, type SortLocation } from '$lib/sortLocation';
+	import { appendFilterState } from '$lib/filterState';
 	import type { PageData } from './$types';
 	import type { PageMeta, RecommendationResponse } from '$lib/api/types';
 
@@ -18,6 +24,8 @@
 	let recommendations = $state<RecommendationResponse[]>(data.recommendations);
 	// svelte-ignore state_referenced_locally
 	let meta = $state<PageMeta>(data.meta);
+	// svelte-ignore state_referenced_locally
+	let filters = $state<FilterState>(data.filters ?? emptyFilterState());
 	let loadingMore = $state(false);
 	let loadMoreError = $state<string | null>(null);
 	let pickerOpen = $state(false);
@@ -25,6 +33,7 @@
 	$effect(() => {
 		recommendations = data.recommendations;
 		meta = data.meta;
+		filters = data.filters ?? emptyFilterState();
 		loadMoreError = null;
 	});
 
@@ -41,16 +50,20 @@
 		{ key: 'CREATED_AT_DESC', label: m.sort_newest() }
 	]);
 
-	function navigateTo(sort: SortKey, lat?: number, lng?: number) {
-		const params: string[] = [];
-		if (sort !== 'AFFINITY_DESC') params.push(`sort=${encodeURIComponent(sort)}`);
+	function navigateTo(
+		sort: SortKey,
+		lat?: number,
+		lng?: number,
+		nextFilters: FilterState = filters
+	) {
+		const qs = new SvelteURLSearchParams();
+		if (sort !== 'AFFINITY_DESC') qs.set('sort', sort);
 		if (sort === 'DISTANCE_ASC' && lat != null && lng != null) {
-			params.push(`lat=${encodeURIComponent(String(lat))}`);
-			params.push(`lng=${encodeURIComponent(String(lng))}`);
+			qs.set('lat', String(lat));
+			qs.set('lng', String(lng));
 		}
-		const target = (
-			params.length > 0 ? `/recommendations?${params.join('&')}` : '/recommendations'
-		) as Pathname;
+		appendFilterState(qs, nextFilters);
+		const target = (qs.size > 0 ? `/recommendations?${qs}` : '/recommendations') as Pathname;
 		goto(resolve(target), { keepFocus: true, noScroll: true, invalidateAll: true });
 	}
 
@@ -73,6 +86,11 @@
 		navigateTo('DISTANCE_ASC', loc.lat, loc.lng);
 	}
 
+	function handleFiltersApply(next: FilterState) {
+		filters = next;
+		navigateTo(currentSort, currentLat, currentLng, next);
+	}
+
 	async function handleLoadMore() {
 		if (!meta.hasNext || !meta.nextCursor || loadingMore) return;
 		loadingMore = true;
@@ -83,7 +101,12 @@
 				size: meta.size,
 				sort: currentSort as RecommendationsSort,
 				lat: currentLat,
-				lng: currentLng
+				lng: currentLng,
+				tagGroups: filters.tagGroups,
+				name: filters.name,
+				dineIn: filters.dineIn,
+				takeOut: filters.takeOut,
+				delivery: filters.delivery
 			});
 			recommendations = [...recommendations, ...next.data];
 			meta = next.page;
@@ -144,6 +167,10 @@
 				</button>
 			{/if}
 		</div>
+	</div>
+
+	<div class="mb-6">
+		<RestaurantFilters bind:value={filters} onapply={handleFiltersApply} />
 	</div>
 
 	{#if recommendations.length === 0}

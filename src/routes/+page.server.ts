@@ -2,6 +2,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { listRestaurantsPublic, type RestaurantsPublicSort } from '$lib/api/restaurants';
 import { getMyReview } from '$lib/api/reviews';
 import { ApiError, type ReviewResponse } from '$lib/api/types';
+import { parseFilterState } from '$lib/filterState';
 import type { PageServerLoad } from './$types';
 
 const VALID_SORTS: RestaurantsPublicSort[] = [
@@ -31,12 +32,18 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 		requestedSort === 'AFFINITY_DESC' && !locals.session ? 'CREATED_AT_DESC' : requestedSort;
 	const lat = sort === 'DISTANCE_ASC' ? parseCoord(url.searchParams.get('lat')) : undefined;
 	const lng = sort === 'DISTANCE_ASC' ? parseCoord(url.searchParams.get('lng')) : undefined;
+	const filters = parseFilterState(url.searchParams);
 	try {
 		const { data, page } = await listRestaurantsPublic(fetch, {
 			size: 20,
 			sort,
 			lat,
-			lng
+			lng,
+			tagGroups: filters.tagGroups,
+			name: filters.name,
+			dineIn: filters.dineIn,
+			takeOut: filters.takeOut,
+			delivery: filters.delivery
 		});
 		const myReviews: Record<string, ReviewResponse | null> = {};
 		const sub = locals.session?.sub;
@@ -52,7 +59,7 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 			);
 			for (const [id, review] of entries) myReviews[id] = review;
 		}
-		return { restaurants: data, meta: page, myReviews, sort, lat, lng };
+		return { restaurants: data, meta: page, myReviews, sort, lat, lng, filters };
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 401) {
 			redirect(302, `/auth/login?return_to=${encodeURIComponent(url.pathname + url.search)}`);

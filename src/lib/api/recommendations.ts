@@ -1,3 +1,4 @@
+import { appendRestaurantFilterParams, type RestaurantFilterParams } from './filters';
 import { ApiError, type RecommendationsPageResponse } from './types';
 
 type Fetcher = typeof fetch;
@@ -24,7 +25,7 @@ export async function listRecommendations(
 		sort?: RecommendationsSort;
 		lat?: number;
 		lng?: number;
-	} = {}
+	} & RestaurantFilterParams = {}
 ): Promise<RecommendationsPageResponse> {
 	const qs = new URLSearchParams();
 	if (options.cursor) qs.set('cursor', options.cursor);
@@ -32,6 +33,7 @@ export async function listRecommendations(
 	if (options.sort) qs.set('sort', options.sort);
 	if (options.lat != null) qs.set('lat', String(options.lat));
 	if (options.lng != null) qs.set('lng', String(options.lng));
+	appendRestaurantFilterParams(qs, options);
 	const url = qs.size > 0 ? `/api/v1/user/recommendations?${qs}` : '/api/v1/user/recommendations';
 	const res = await fetcher(url, { headers: { Accept: 'application/json' } });
 	return parseOrThrow<RecommendationsPageResponse>(res);

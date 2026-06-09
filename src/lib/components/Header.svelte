@@ -1,8 +1,7 @@
 <script lang="ts">
-	import type { Pathname } from '$app/types';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { locales, localizeHref, getLocale } from '$lib/paraglide/runtime';
+	import { locales, getLocale, setLocale } from '$lib/paraglide/runtime';
 	import * as m from '$lib/paraglide/messages';
 
 	let {
@@ -101,19 +100,22 @@
 						role="listbox"
 					>
 						{#each locales as locale (locale)}
-							<a
-								href={resolve(localizeHref(page.url.pathname, { locale }) as Pathname)}
+							<button
+								type="button"
 								role="option"
 								aria-selected={locale === currentLocale}
-								onclick={() => (open = false)}
-								class="flex items-center gap-2 px-3 py-2 text-xs hover:bg-stone-50"
+								onclick={() => {
+									open = false;
+									if (locale !== currentLocale) setLocale(locale);
+								}}
+								class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs hover:bg-stone-50"
 								class:font-semibold={locale === currentLocale}
 								class:text-stone-900={locale === currentLocale}
 								class:text-stone-500={locale !== currentLocale}
 							>
 								<span>{flagMap[locale] ?? ''}</span>
 								<span class="uppercase">{locale}</span>
-							</a>
+							</button>
 						{/each}
 					</div>
 				{/if}

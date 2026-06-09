@@ -5,6 +5,7 @@ import {
 	type CreateTagRequest,
 	type RestaurantTagResponse,
 	type TagCatalogResponse,
+	type TagCategory,
 	type TagImplicationResponse,
 	type TagImplicationsResponse,
 	type TagResponse
@@ -26,8 +27,14 @@ const USER_RESTAURANT_PATH = '/api/v1/user/restaurants';
 const PUBLIC_IMPLICATIONS_PATH = '/api/v1/public/tag-implications';
 const ADMIN_IMPLICATIONS_PATH = '/api/v1/admin/tag-implications';
 
-export async function listTagCatalog(fetcher: Fetcher): Promise<TagCatalogResponse> {
-	const res = await fetcher(PUBLIC_PATH, { headers: { Accept: 'application/json' } });
+export async function listTagCatalog(
+	fetcher: Fetcher,
+	options: { category?: TagCategory } = {}
+): Promise<TagCatalogResponse> {
+	const url = options.category
+		? `${PUBLIC_PATH}?category=${encodeURIComponent(options.category)}`
+		: PUBLIC_PATH;
+	const res = await fetcher(url, { headers: { Accept: 'application/json' } });
 	return parseOrThrow<TagCatalogResponse>(res);
 }
 

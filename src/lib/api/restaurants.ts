@@ -1,3 +1,4 @@
+import { appendRestaurantFilterParams, type RestaurantFilterParams } from './filters';
 import {
 	ApiError,
 	parseProblem,
@@ -35,7 +36,7 @@ export async function listRestaurantsPublic(
 		sort?: RestaurantsPublicSort;
 		lat?: number;
 		lng?: number;
-	} = {}
+	} & RestaurantFilterParams = {}
 ): Promise<RestaurantsPageResponse> {
 	const qs = new URLSearchParams();
 	if (options.cursor) qs.set('cursor', options.cursor);
@@ -43,6 +44,7 @@ export async function listRestaurantsPublic(
 	if (options.sort) qs.set('sort', options.sort);
 	if (options.lat != null) qs.set('lat', String(options.lat));
 	if (options.lng != null) qs.set('lng', String(options.lng));
+	appendRestaurantFilterParams(qs, options);
 	const url = qs.size > 0 ? `${PUBLIC_PATH}?${qs}` : PUBLIC_PATH;
 	const res = await fetcher(url, { headers: { Accept: 'application/json' } });
 	return parseOrThrow<RestaurantsPageResponse>(res);

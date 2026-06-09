@@ -1,6 +1,7 @@
 import { redirect, error } from '@sveltejs/kit';
 import { listRecommendations, type RecommendationsSort } from '$lib/api/recommendations';
 import { ApiError } from '$lib/api/types';
+import { parseFilterState } from '$lib/filterState';
 import type { PageServerLoad } from './$types';
 
 const VALID_SORTS: RecommendationsSort[] = [
@@ -29,9 +30,20 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 	const sort = parseSort(url.searchParams.get('sort'));
 	const lat = sort === 'DISTANCE_ASC' ? parseCoord(url.searchParams.get('lat')) : undefined;
 	const lng = sort === 'DISTANCE_ASC' ? parseCoord(url.searchParams.get('lng')) : undefined;
+	const filters = parseFilterState(url.searchParams);
 	try {
-		const { data, page } = await listRecommendations(fetch, { size: 20, sort, lat, lng });
-		return { recommendations: data, meta: page, sort, lat, lng };
+		const { data, page } = await listRecommendations(fetch, {
+			size: 20,
+			sort,
+			lat,
+			lng,
+			tagGroups: filters.tagGroups,
+			name: filters.name,
+			dineIn: filters.dineIn,
+			takeOut: filters.takeOut,
+			delivery: filters.delivery
+		});
+		return { recommendations: data, meta: page, sort, lat, lng, filters };
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 401) {
 			redirect(302, `/auth/login?return_to=${encodeURIComponent(url.pathname + url.search)}`);
