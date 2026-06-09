@@ -1,7 +1,9 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
 	import { createRestaurant } from '$lib/api/restaurants';
+	import { attachRestaurantTag } from '$lib/api/tags';
 	import { uploadAndRegisterPhoto } from '$lib/photos';
+	import TagPicker from './TagPicker.svelte';
 	import type { PhotoResponse, RestaurantResponse } from '$lib/api/types';
 
 	const MAX_FILES = 5;
@@ -19,6 +21,7 @@
 
 	let name = $state('');
 	let address = $state('');
+	let selectedTagIds = $state<string[]>([]);
 	let files = $state<File[]>([]);
 	let fileValidationError = $state<string | null>(null);
 
@@ -59,6 +62,7 @@
 	function reset() {
 		name = '';
 		address = '';
+		selectedTagIds = [];
 		files = [];
 		fileValidationError = null;
 		submitError = null;
@@ -113,6 +117,14 @@
 			submitError = m.error_create_failed();
 			phase = { kind: 'idle' };
 			return;
+		}
+
+		for (const tagId of selectedTagIds) {
+			try {
+				await attachRestaurantTag(fetch, restaurant.id, tagId);
+			} catch {
+				// Tag attach is best-effort: the restaurant exists, the user can add tags later.
+			}
 		}
 
 		if (files.length === 0) {
@@ -197,6 +209,11 @@
 				class="rounded-md border-stone-300 focus:border-stone-500 focus:ring-stone-500"
 			/>
 		</label>
+
+		<div class="flex flex-col gap-2">
+			<span class="text-sm font-medium text-stone-700">{m.tag_picker_label()}</span>
+			<TagPicker bind:selected={selectedTagIds} disabled={submitting} />
+		</div>
 
 		<div class="flex flex-col gap-2">
 			<span class="text-sm font-medium text-stone-700">{m.photo_add_label()}</span>

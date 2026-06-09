@@ -44,7 +44,7 @@
 				<div class="flex items-center justify-between gap-3">
 					<div class="flex items-center gap-2">
 						<span class="text-sm font-medium text-stone-700">
-							{m.review_author({ id: shortId(review.authorId) })}
+							{review.authorDisplayName ?? m.review_author({ id: shortId(review.authorId) })}
 						</span>
 						{#if showConnect && currentUserId && review.authorId !== currentUserId}
 							<ConnectButton targetId={review.authorId} />

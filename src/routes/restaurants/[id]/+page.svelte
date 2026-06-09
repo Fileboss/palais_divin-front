@@ -4,12 +4,18 @@
 	import * as m from '$lib/paraglide/messages';
 	import Header from '$lib/components/Header.svelte';
 	import PhotoGallery from '$lib/components/PhotoGallery.svelte';
+	import RestaurantTagsEditor from '$lib/components/RestaurantTagsEditor.svelte';
 	import ReviewForm from '$lib/components/ReviewForm.svelte';
 	import ReviewList from '$lib/components/ReviewList.svelte';
 	import { listReviewsPublic } from '$lib/api/reviews';
 	import { getRestaurantAffinity } from '$lib/api/restaurants';
 	import type { PageData } from './$types';
-	import type { PageMeta, RestaurantAffinityResponse, ReviewResponse } from '$lib/api/types';
+	import type {
+		PageMeta,
+		RestaurantAffinityResponse,
+		ReviewResponse,
+		TagSummary
+	} from '$lib/api/types';
 
 	let { data }: { data: PageData } = $props();
 
@@ -19,6 +25,8 @@
 	let reviewsMeta = $state<PageMeta>(data.reviewsMeta);
 	// svelte-ignore state_referenced_locally
 	let myReview = $state<ReviewResponse | null>(data.myReview);
+	// svelte-ignore state_referenced_locally
+	let restaurantTags = $state<TagSummary[]>(data.restaurant.tags ?? []);
 	let loadingMore = $state(false);
 	let loadMoreError = $state<string | null>(null);
 	let affinity = $state<RestaurantAffinityResponse | null>(null);
@@ -102,10 +110,22 @@
 			<p class="mt-1 text-sm text-stone-600">{data.restaurant.address}</p>
 		{/if}
 
+		<RestaurantTagsEditor
+			restaurantId={data.restaurant.id}
+			bind:tags={restaurantTags}
+			canEdit={isAuthed}
+		/>
+
 		<p class="mt-2 text-sm">
 			{#if avgRatingLabel}
 				<span class="text-amber-400" aria-hidden="true">★</span>
 				<span class="font-medium text-stone-700">{avgRatingLabel}</span>
+				<span class="ml-1 text-stone-500">
+					({m.review_count_label({
+						count: reviews.length,
+						more: reviewsMeta.hasNext ? '+' : ''
+					})})
+				</span>
 			{:else}
 				<span class="text-stone-400">{m.review_no_ratings_yet()}</span>
 			{/if}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import * as m from '$lib/paraglide/messages';
 	import type {
@@ -150,9 +151,25 @@
 		</div>
 	{/if}
 	<div class="flex flex-1 flex-col gap-2 p-4">
-		<h3 class="text-base font-semibold text-stone-900">{restaurant.name}</h3>
+		<h3 class="text-base font-semibold">
+			<a
+				href={resolve('/restaurants/[id]', { id: restaurant.id })}
+				class="text-stone-900 hover:underline focus:underline focus:outline-none"
+			>
+				{restaurant.name}
+			</a>
+		</h3>
 		{#if restaurant.address}
 			<p class="text-sm text-stone-600">{restaurant.address}</p>
+		{/if}
+		{#if restaurant.tags && restaurant.tags.length > 0}
+			<ul class="flex flex-wrap gap-1">
+				{#each restaurant.tags as tag (tag.slug)}
+					<li class="rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-700">
+						{tag.label}
+					</li>
+				{/each}
+			</ul>
 		{/if}
 		<p class="text-sm">
 			{#if avgRatingLabel}

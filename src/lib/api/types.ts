@@ -8,6 +8,67 @@ export interface CreateRestaurantRequest {
 	address: string;
 }
 
+export type TagCategory = 'REGIME' | 'TYPE' | 'SPECIALTY' | 'VENUE_TYPE' | 'SERVICE_AND_PLACE';
+
+export const TAG_CATEGORIES: TagCategory[] = [
+	'REGIME',
+	'TYPE',
+	'SPECIALTY',
+	'VENUE_TYPE',
+	'SERVICE_AND_PLACE'
+];
+
+export interface TagSummary {
+	slug: string;
+	label: string;
+	category: TagCategory;
+}
+
+export interface TagResponse {
+	id: string;
+	slug: string;
+	label: string;
+	category: TagCategory;
+	createdAt: string;
+}
+
+export interface CreateTagRequest {
+	category: TagCategory;
+	label: string;
+	slug: string;
+}
+
+export interface CategoryGroup {
+	category: TagCategory;
+	tags: TagResponse[];
+}
+
+export interface TagCatalogResponse {
+	groups: CategoryGroup[];
+}
+
+export interface RestaurantTagResponse {
+	tagId: string;
+	restaurantId: string;
+	attachedBy: string;
+	attachedAt: string;
+}
+
+export interface TagImplicationResponse {
+	tagId: string;
+	impliesTagId: string;
+	createdAt: string;
+}
+
+export interface CreateTagImplicationRequest {
+	tagId: string;
+	impliesTagId: string;
+}
+
+export interface TagImplicationsResponse {
+	data: TagImplicationResponse[];
+}
+
 export interface RestaurantResponse {
 	id: string;
 	name: string;
@@ -17,6 +78,10 @@ export interface RestaurantResponse {
 	distanceMetres?: number | null;
 	thumbnail?: PhotoSummary | null;
 	affinity?: number | null;
+	tags?: TagSummary[];
+	dineIn?: boolean;
+	takeOut?: boolean;
+	delivery?: boolean;
 	createdAt: string;
 }
 
@@ -55,6 +120,7 @@ export interface ReviewResponse {
 	id: string;
 	restaurantId: string;
 	authorId: string;
+	authorDisplayName?: string;
 	rating: number;
 	comment?: string;
 	createdAt: string;
