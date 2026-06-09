@@ -7,7 +7,7 @@
 	let {
 		user
 	}: {
-		user?: { username: string; roles?: string[] } | null;
+		user?: { sub: string; username: string; roles?: string[] } | null;
 	} = $props();
 
 	const isAdmin = $derived(user?.roles?.includes('ADMIN') ?? false);
@@ -59,6 +59,13 @@
 					aria-current={page.url.pathname.startsWith('/recommendations') ? 'page' : undefined}
 				>
 					{m.nav_recommendations()}
+				</a>
+				<a
+					href={resolve(`/users/${user.sub}`)}
+					class="text-sm font-medium text-stone-900 underline-offset-4 hover:underline"
+					aria-current={page.url.pathname === `/users/${user.sub}` ? 'page' : undefined}
+				>
+					{m.nav_profile()}
 				</a>
 			{/if}
 

@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import * as m from '$lib/paraglide/messages';
 	import type { PageMeta, ReviewResponse } from '$lib/api/types';
-	import ConnectButton from './ConnectButton.svelte';
+	import FollowButton from './FollowButton.svelte';
 
 	let {
 		reviews,
@@ -43,11 +44,14 @@
 			<li class="flex flex-col gap-2 py-4">
 				<div class="flex items-center justify-between gap-3">
 					<div class="flex items-center gap-2">
-						<span class="text-sm font-medium text-stone-700">
+						<a
+							href={resolve(`/users/${review.authorId}`)}
+							class="text-sm font-medium text-stone-700 underline-offset-4 hover:text-stone-900 hover:underline"
+						>
 							{review.authorDisplayName ?? m.review_author({ id: shortId(review.authorId) })}
-						</span>
+						</a>
 						{#if showConnect && currentUserId && review.authorId !== currentUserId}
-							<ConnectButton targetId={review.authorId} />
+							<FollowButton targetId={review.authorId} />
 						{/if}
 					</div>
 					<div class="flex items-center gap-2">

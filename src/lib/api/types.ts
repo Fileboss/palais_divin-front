@@ -196,11 +196,47 @@ export interface RegisterPhotoRequest {
 	objectKey: string;
 }
 
+export interface PublicUserResponse {
+	id: string;
+	displayName: string;
+	createdAt: string;
+	isFollowedByMe?: boolean;
+}
+
+export interface AuthorReviewRestaurantRef {
+	id: string;
+	name: string;
+	address: string;
+}
+
+export interface AuthorReviewResponse {
+	reviewId: string;
+	rating: number;
+	comment?: string;
+	createdAt: string;
+	restaurant: AuthorReviewRestaurantRef;
+}
+
+export interface AuthorReviewsPageResponse {
+	data: AuthorReviewResponse[];
+	page: PageMeta;
+}
+
 export interface ConnectionResponse {
 	id: string;
 	sourceUserId: string;
 	targetUserId: string;
 	createdAt: string;
+}
+
+export interface FollowingResponse {
+	user: PublicUserResponse;
+	createdAt: string;
+}
+
+export interface FollowingPageResponse {
+	data: FollowingResponse[];
+	page: PageMeta;
 }
 
 export interface ProblemFieldError {

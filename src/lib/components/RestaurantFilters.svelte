@@ -36,6 +36,7 @@
 	let nameInput = $derived(value.name);
 	let nameTimer: ReturnType<typeof setTimeout> | null = null;
 	let capHit = $state(false);
+	let expanded = $state(false);
 
 	$effect(() => {
 		for (const category of EAGER) {
@@ -205,8 +206,27 @@
 {/snippet}
 
 <section class="flex flex-col gap-3 rounded-lg border border-stone-200 bg-stone-50/60 p-4">
-	<div class="flex flex-wrap items-center justify-between gap-2">
+	<div
+		role="button"
+		tabindex="0"
+		aria-expanded={expanded}
+		onclick={() => (expanded = !expanded)}
+		onkeydown={(ev) => {
+			if (ev.key === 'Enter' || ev.key === ' ') {
+				ev.preventDefault();
+				expanded = !expanded;
+			}
+		}}
+		class="-m-1 flex cursor-pointer flex-wrap items-center justify-between gap-2 rounded p-1 select-none hover:text-stone-900"
+	>
 		<div class="flex items-center gap-2 text-sm font-medium text-stone-700">
+			<span
+				aria-hidden="true"
+				class="inline-block text-[10px] text-stone-400 transition-transform"
+				class:rotate-90={expanded}
+			>
+				▶
+			</span>
 			<span>{m.filter_title()}</span>
 			{#if activeCount > 0}
 				<span class="rounded-full bg-stone-200 px-2 py-0.5 text-xs text-stone-700">
@@ -217,7 +237,10 @@
 		{#if activeCount > 0}
 			<button
 				type="button"
-				onclick={handleReset}
+				onclick={(ev) => {
+					ev.stopPropagation();
+					handleReset();
+				}}
 				class="text-xs font-medium text-stone-500 underline-offset-4 hover:text-stone-900 hover:underline"
 			>
 				{m.filter_reset()}
@@ -225,68 +248,70 @@
 		{/if}
 	</div>
 
-	{#each EAGER as category (category)}
-		<div class="flex flex-col gap-1.5">
-			<p class="text-xs font-medium tracking-wide text-stone-500 uppercase">
-				{categoryLabel(category)}
-			</p>
-			{@render chipList(category)}
-		</div>
-	{/each}
-
-	<div class="flex flex-wrap gap-2">
-		{#each COLLAPSED as category (category)}
-			{@const count = selectedCountForCategory(category)}
-			<details
-				class="flex-1 rounded-md border border-stone-200 bg-white"
-				ontoggle={(ev) => handleDetailsToggle(category, ev)}
-			>
-				<summary
-					class="cursor-pointer list-none px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50"
-				>
+	{#if expanded}
+		{#each EAGER as category (category)}
+			<div class="flex flex-col gap-1.5">
+				<p class="text-xs font-medium tracking-wide text-stone-500 uppercase">
 					{categoryLabel(category)}
-					{#if count > 0}
-						<span class="ml-1 text-stone-500">({count})</span>
-					{/if}
-				</summary>
-				<div class="border-t border-stone-100 p-2">
-					{@render chipList(category)}
-				</div>
-			</details>
+				</p>
+				{@render chipList(category)}
+			</div>
 		{/each}
-	</div>
 
-	<div class="flex flex-wrap items-center gap-2">
-		{#each [{ field: 'dineIn' as const, label: m.filter_dine_in() }, { field: 'takeOut' as const, label: m.filter_take_out() }, { field: 'delivery' as const, label: m.filter_delivery() }] as toggle (toggle.field)}
-			{@const state = value[toggle.field]}
-			<button
-				type="button"
-				onclick={() => cycleBoolean(toggle.field)}
-				class="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition"
-				class:border-stone-900={state !== undefined}
-				class:bg-stone-900={state === true}
-				class:text-white={state === true}
-				class:bg-white={state !== true}
-				class:text-stone-900={state === false}
-				class:border-stone-300={state === undefined}
-				class:text-stone-700={state === undefined}
-			>
-				<span>{toggle.label}</span>
-				<span class="text-[10px] opacity-70">{booleanLabel(state)}</span>
-			</button>
-		{/each}
-	</div>
+		<div class="flex flex-wrap gap-2">
+			{#each COLLAPSED as category (category)}
+				{@const count = selectedCountForCategory(category)}
+				<details
+					class="flex-1 rounded-md border border-stone-200 bg-white"
+					ontoggle={(ev) => handleDetailsToggle(category, ev)}
+				>
+					<summary
+						class="cursor-pointer list-none px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50"
+					>
+						{categoryLabel(category)}
+						{#if count > 0}
+							<span class="ml-1 text-stone-500">({count})</span>
+						{/if}
+					</summary>
+					<div class="border-t border-stone-100 p-2">
+						{@render chipList(category)}
+					</div>
+				</details>
+			{/each}
+		</div>
 
-	<input
-		type="search"
-		bind:value={nameInput}
-		oninput={handleNameInput}
-		maxlength={100}
-		placeholder={m.filter_name_placeholder()}
-		class="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-500 focus:outline-none"
-	/>
+		<div class="flex flex-wrap items-center gap-2">
+			{#each [{ field: 'dineIn' as const, label: m.filter_dine_in() }, { field: 'takeOut' as const, label: m.filter_take_out() }, { field: 'delivery' as const, label: m.filter_delivery() }] as toggle (toggle.field)}
+				{@const state = value[toggle.field]}
+				<button
+					type="button"
+					onclick={() => cycleBoolean(toggle.field)}
+					class="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition"
+					class:border-stone-900={state !== undefined}
+					class:bg-stone-900={state === true}
+					class:text-white={state === true}
+					class:bg-white={state !== true}
+					class:text-stone-900={state === false}
+					class:border-stone-300={state === undefined}
+					class:text-stone-700={state === undefined}
+				>
+					<span>{toggle.label}</span>
+					<span class="text-[10px] opacity-70">{booleanLabel(state)}</span>
+				</button>
+			{/each}
+		</div>
 
-	{#if capHit}
-		<p class="text-xs text-amber-700" role="alert">{m.filter_cap_reached()}</p>
+		<input
+			type="search"
+			bind:value={nameInput}
+			oninput={handleNameInput}
+			maxlength={100}
+			placeholder={m.filter_name_placeholder()}
+			class="w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-500 focus:outline-none"
+		/>
+
+		{#if capHit}
+			<p class="text-xs text-amber-700" role="alert">{m.filter_cap_reached()}</p>
+		{/if}
 	{/if}
 </section>
