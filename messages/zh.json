@@ -31,6 +31,8 @@
 	"admin_tag_creating": "创建中…",
 	"admin_tag_category": "类别",
 	"admin_tag_label": "标签名",
+	"admin_tag_label_fr": "标签名（FR）",
+	"admin_tag_label_i18n_heading": "翻译（可选）",
 	"admin_tag_create_failed": "创建失败，请重试。",
 	"admin_tag_catalog": "标签目录",
 	"admin_tag_catalog_load_failed": "无法加载标签目录。",

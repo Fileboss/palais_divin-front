@@ -137,13 +137,7 @@
 			<h2 class="mb-3 text-sm font-medium tracking-wide text-stone-500 uppercase">
 				{m.profile_following_title()}
 			</h2>
-			{#if data.followingPending}
-				<p
-					class="rounded-md border border-dashed border-stone-300 bg-stone-50 p-6 text-center text-sm text-stone-500"
-				>
-					{m.profile_following_pending()}
-				</p>
-			{:else if following.length === 0}
+			{#if following.length === 0}
 				<p
 					class="rounded-md border border-dashed border-stone-300 bg-stone-50 p-6 text-center text-sm text-stone-500"
 				>

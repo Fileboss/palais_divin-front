@@ -31,6 +31,8 @@
 	"admin_tag_creating": "作成中…",
 	"admin_tag_category": "カテゴリー",
 	"admin_tag_label": "ラベル",
+	"admin_tag_label_fr": "ラベル（FR）",
+	"admin_tag_label_i18n_heading": "翻訳（任意）",
 	"admin_tag_create_failed": "作成に失敗しました。もう一度お試しください。",
 	"admin_tag_catalog": "タグカタログ",
 	"admin_tag_catalog_load_failed": "タグカタログを読み込めませんでした。",

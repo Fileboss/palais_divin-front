@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
 	import { getLocale } from '$lib/paraglide/runtime';
+	import { tagLabel } from '$lib/i18n/tagLabel';
 	import Header from '$lib/components/Header.svelte';
 	import { createInvitation } from '$lib/api/invitations';
 	import {
@@ -29,8 +30,19 @@
 	let copiedId = $state<string | null>(null);
 	let copyTimer: ReturnType<typeof setTimeout> | null = null;
 
+	const I18N_LOCALES = ['en', 'es', 'de', 'zh', 'ko', 'ja'] as const;
+	type I18nLocale = (typeof I18N_LOCALES)[number];
+
 	let newTagCategory = $state<TagCategory>('REGIME');
 	let newTagLabel = $state('');
+	let newTagLabelI18n = $state<Record<I18nLocale, string>>({
+		en: '',
+		es: '',
+		de: '',
+		zh: '',
+		ko: '',
+		ja: ''
+	});
 	let tagSubmitting = $state(false);
 	let tagSubmitError = $state<string | null>(null);
 
@@ -92,7 +104,7 @@
 
 	function tagDisplay(id: string): string {
 		const t = tagsById.get(id);
-		return t ? t.label : id.slice(0, 8);
+		return t ? tagLabel(t) : id.slice(0, 8);
 	}
 
 	function slugify(input: string): string {
@@ -110,14 +122,25 @@
 		const label = newTagLabel.trim();
 		const slug = slugify(label);
 		if (!label || !slug) return;
+		const labelI18n: Record<string, string> = {};
+		for (const loc of I18N_LOCALES) {
+			const v = newTagLabelI18n[loc].trim();
+			if (v) labelI18n[loc] = v;
+		}
 		tagSubmitting = true;
 		tagSubmitError = null;
 		try {
-			const created = await createTag(fetch, { category: newTagCategory, label, slug });
+			const created = await createTag(fetch, {
+				category: newTagCategory,
+				label,
+				slug,
+				...(Object.keys(labelI18n).length > 0 ? { labelI18n } : {})
+			});
 			catalogGroups = catalogGroups.map((g) =>
 				g.category === created.category ? { ...g, tags: [created, ...g.tags] } : g
 			);
 			newTagLabel = '';
+			newTagLabelI18n = { en: '', es: '', de: '', zh: '', ko: '', ja: '' };
 		} catch {
 			tagSubmitError = m.admin_tag_create_failed();
 		} finally {
@@ -316,40 +339,66 @@
 		<div class="mt-4 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
 			<h3 class="text-sm font-semibold text-stone-900">{m.admin_tag_create()}</h3>
 
-			<form onsubmit={handleCreateTag} class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
-				<label class="flex flex-1 flex-col gap-1">
-					<span class="text-xs font-medium text-stone-700">{m.admin_tag_category()}</span>
-					<select
-						bind:value={newTagCategory}
-						disabled={tagSubmitting}
-						class="rounded-md border-stone-300 text-sm focus:border-stone-500 focus:ring-stone-500 disabled:opacity-50"
-					>
-						{#each tagCategories as cat (cat)}
-							<option value={cat}>{tagCategoryLabel(cat)}</option>
+			<form onsubmit={handleCreateTag} class="mt-3 flex flex-col gap-3">
+				<div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+					<label class="flex flex-1 flex-col gap-1">
+						<span class="text-xs font-medium text-stone-700">{m.admin_tag_category()}</span>
+						<select
+							bind:value={newTagCategory}
+							disabled={tagSubmitting}
+							class="rounded-md border-stone-300 text-sm focus:border-stone-500 focus:ring-stone-500 disabled:opacity-50"
+						>
+							{#each tagCategories as cat (cat)}
+								<option value={cat}>{tagCategoryLabel(cat)}</option>
+							{/each}
+						</select>
+					</label>
+
+					<label class="flex flex-1 flex-col gap-1">
+						<span class="text-xs font-medium text-stone-700">{m.admin_tag_label_fr()}</span>
+						<input
+							type="text"
+							bind:value={newTagLabel}
+							required
+							minlength="1"
+							maxlength="127"
+							disabled={tagSubmitting}
+							class="rounded-md border-stone-300 text-sm focus:border-stone-500 focus:ring-stone-500 disabled:opacity-50"
+						/>
+					</label>
+				</div>
+
+				<details class="rounded-md border border-stone-200 bg-stone-50 p-3">
+					<summary class="cursor-pointer text-xs font-medium text-stone-700">
+						{m.admin_tag_label_i18n_heading()}
+					</summary>
+					<div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+						{#each I18N_LOCALES as loc (loc)}
+							<label class="flex flex-col gap-1">
+								<span class="text-[11px] font-medium tracking-wide text-stone-500 uppercase">
+									{loc}
+								</span>
+								<input
+									type="text"
+									bind:value={newTagLabelI18n[loc]}
+									maxlength="127"
+									disabled={tagSubmitting}
+									class="rounded-md border-stone-300 text-sm focus:border-stone-500 focus:ring-stone-500 disabled:opacity-50"
+								/>
+							</label>
 						{/each}
-					</select>
-				</label>
+					</div>
+				</details>
 
-				<label class="flex flex-1 flex-col gap-1">
-					<span class="text-xs font-medium text-stone-700">{m.admin_tag_label()}</span>
-					<input
-						type="text"
-						bind:value={newTagLabel}
-						required
-						minlength="1"
-						maxlength="127"
-						disabled={tagSubmitting}
-						class="rounded-md border-stone-300 text-sm focus:border-stone-500 focus:ring-stone-500 disabled:opacity-50"
-					/>
-				</label>
-
-				<button
-					type="submit"
-					disabled={tagSubmitting || newTagLabel.trim().length === 0}
-					class="rounded-md bg-stone-900 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
-				>
-					{tagSubmitting ? m.admin_tag_creating() : `+ ${m.admin_tag_create()}`}
-				</button>
+				<div class="flex justify-end">
+					<button
+						type="submit"
+						disabled={tagSubmitting || newTagLabel.trim().length === 0}
+						class="rounded-md bg-stone-900 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						{tagSubmitting ? m.admin_tag_creating() : `+ ${m.admin_tag_create()}`}
+					</button>
+				</div>
 			</form>
 
 			{#if tagSubmitError}
@@ -395,15 +444,16 @@
 							{:else}
 								<ul class="flex flex-wrap gap-1.5">
 									{#each group.tags as tag (tag.id)}
+										{@const display = tagLabel(tag)}
 										<li
 											class="inline-flex items-center gap-1 rounded-full border border-stone-300 bg-stone-50 py-0.5 pr-1 pl-2.5 text-xs font-medium text-stone-700"
 										>
-											<span>{tag.label}</span>
+											<span>{display}</span>
 											<button
 												type="button"
-												onclick={() => handleDeleteTag(tag.id, tag.label)}
+												onclick={() => handleDeleteTag(tag.id, display)}
 												disabled={deletingTagId !== null}
-												aria-label={m.admin_tag_delete_aria({ label: tag.label })}
+												aria-label={m.admin_tag_delete_aria({ label: display })}
 												class="flex size-4 items-center justify-center rounded-full text-stone-400 hover:bg-stone-200 hover:text-stone-700 disabled:cursor-not-allowed disabled:opacity-50"
 											>
 												{deletingTagId === tag.id ? '…' : '×'}
@@ -439,7 +489,7 @@
 							{#if group.tags.length > 0}
 								<optgroup label={tagCategoryLabel(group.category)}>
 									{#each group.tags as tag (tag.id)}
-										<option value={tag.id}>{tag.label}</option>
+										<option value={tag.id}>{tagLabel(tag)}</option>
 									{/each}
 								</optgroup>
 							{/if}
@@ -460,7 +510,7 @@
 							{#if group.tags.length > 0}
 								<optgroup label={tagCategoryLabel(group.category)}>
 									{#each group.tags as tag (tag.id)}
-										<option value={tag.id}>{tag.label}</option>
+										<option value={tag.id}>{tagLabel(tag)}</option>
 									{/each}
 								</optgroup>
 							{/if}

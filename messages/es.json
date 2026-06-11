@@ -31,6 +31,8 @@
 	"admin_tag_creating": "Creando…",
 	"admin_tag_category": "Categoría",
 	"admin_tag_label": "Etiqueta",
+	"admin_tag_label_fr": "Etiqueta (FR)",
+	"admin_tag_label_i18n_heading": "Traducciones (opcional)",
 	"admin_tag_create_failed": "Error al crear. Inténtalo de nuevo.",
 	"admin_tag_catalog": "Catálogo de etiquetas",
 	"admin_tag_catalog_load_failed": "No se pudo cargar el catálogo de etiquetas.",

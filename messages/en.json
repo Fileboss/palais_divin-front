@@ -31,6 +31,8 @@
 	"admin_tag_creating": "Creating…",
 	"admin_tag_category": "Category",
 	"admin_tag_label": "Label",
+	"admin_tag_label_fr": "Label (FR)",
+	"admin_tag_label_i18n_heading": "Translations (optional)",
 	"admin_tag_create_failed": "Creation failed. Please try again.",
 	"admin_tag_catalog": "Tag catalog",
 	"admin_tag_catalog_load_failed": "Could not load the tag catalog.",

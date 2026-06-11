@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as m from '$lib/paraglide/messages';
 	import { attachRestaurantTag, detachRestaurantTag, listTagCatalog } from '$lib/api/tags';
+	import { tagLabel } from '$lib/i18n/tagLabel';
 	import type { CategoryGroup, TagCategory, TagSummary } from '$lib/api/types';
 
 	let {
@@ -144,7 +145,7 @@
 										class:text-stone-700={!isSelected}
 										class:hover:bg-stone-50={!isSelected}
 									>
-										{tag.label}
+										{tagLabel(tag)}
 									</button>
 								</li>
 							{/each}

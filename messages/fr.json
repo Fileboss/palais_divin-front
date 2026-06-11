@@ -31,6 +31,8 @@
 	"admin_tag_creating": "Création…",
 	"admin_tag_category": "Catégorie",
 	"admin_tag_label": "Libellé",
+	"admin_tag_label_fr": "Libellé (FR)",
+	"admin_tag_label_i18n_heading": "Traductions (optionnel)",
 	"admin_tag_create_failed": "Échec de la création. Réessayez.",
 	"admin_tag_catalog": "Catalogue d'étiquettes",
 	"admin_tag_catalog_load_failed": "Impossible de charger le catalogue d'étiquettes.",

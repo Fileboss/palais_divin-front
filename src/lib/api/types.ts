@@ -28,6 +28,7 @@ export interface TagResponse {
 	id: string;
 	slug: string;
 	label: string;
+	labelI18n?: Record<string, string>;
 	category: TagCategory;
 	createdAt: string;
 }
@@ -35,6 +36,7 @@ export interface TagResponse {
 export interface CreateTagRequest {
 	category: TagCategory;
 	label: string;
+	labelI18n?: Record<string, string>;
 	slug: string;
 }
 
@@ -200,7 +202,7 @@ export interface PublicUserResponse {
 	id: string;
 	displayName: string;
 	createdAt: string;
-	isFollowedByMe?: boolean;
+	isFollowedByMe: boolean | null;
 }
 
 export interface AuthorReviewRestaurantRef {

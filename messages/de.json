@@ -31,6 +31,8 @@
 	"admin_tag_creating": "Wird erstellt…",
 	"admin_tag_category": "Kategorie",
 	"admin_tag_label": "Bezeichnung",
+	"admin_tag_label_fr": "Bezeichnung (FR)",
+	"admin_tag_label_i18n_heading": "Übersetzungen (optional)",
 	"admin_tag_create_failed": "Erstellung fehlgeschlagen. Bitte versuchen Sie es erneut.",
 	"admin_tag_catalog": "Tag-Katalog",
 	"admin_tag_catalog_load_failed": "Tag-Katalog konnte nicht geladen werden.",

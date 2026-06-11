@@ -14,19 +14,10 @@ export const load: PageServerLoad = async ({ fetch, locals, params }) => {
 		]);
 		let following: FollowingResponse[] | null = null;
 		let followingMeta: PageMeta | null = null;
-		let followingPending = false;
 		if (isOwnProfile) {
-			try {
-				const page = await listMyFollowing(fetch, { size: 20 });
-				following = page.data;
-				followingMeta = page.page;
-			} catch (err) {
-				if (err instanceof ApiError && (err.status === 404 || err.status === 405)) {
-					followingPending = true;
-				} else {
-					throw err;
-				}
-			}
+			const page = await listMyFollowing(fetch, { size: 20 });
+			following = page.data;
+			followingMeta = page.page;
 		}
 		return {
 			profile: user,
@@ -34,8 +25,7 @@ export const load: PageServerLoad = async ({ fetch, locals, params }) => {
 			reviewsMeta: reviewsPage.page,
 			isOwnProfile,
 			following,
-			followingMeta,
-			followingPending
+			followingMeta
 		};
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 404) {

@@ -18,7 +18,7 @@ paths:
         - invitation-rest-controller
   /api/v1/admin/restaurants/{id}:
     delete:
-      operationId: delete_2
+      operationId: delete_3
       parameters:
         - in: path
           name: id
@@ -51,7 +51,7 @@ paths:
         - admin-tag-implication-rest-controller
   /api/v1/admin/tag-implications/{tagId}/{impliesTagId}:
     delete:
-      operationId: delete_1
+      operationId: delete_2
       parameters:
         - in: path
           name: tagId
@@ -90,7 +90,7 @@ paths:
         - admin-tag-rest-controller
   /api/v1/admin/tags/{tagId}:
     delete:
-      operationId: delete
+      operationId: delete_1
       parameters:
         - in: path
           name: tagId
@@ -117,7 +117,7 @@ paths:
         - ping-controller
   /api/v1/public/restaurants:
     get:
-      operationId: list_4
+      operationId: list_5
       parameters:
         - in: query
           name: cursor
@@ -152,9 +152,9 @@ paths:
             type: array
             items:
               type: string
-              maxLength: 64
+              maxLength: 650
               minLength: 0
-              pattern: "^[a-z0-9]+(-[a-z0-9]+)*$"
+              pattern: "^[a-z0-9]+(-[a-z0-9]+)*(,[a-z0-9]+(-[a-z0-9]+)*)*$"
             maxItems: 10
             minItems: 0
         - in: query
@@ -225,7 +225,7 @@ paths:
         - public-restaurant-rest-controller
   /api/v1/public/restaurants/{restaurantId}/photos:
     get:
-      operationId: list_6
+      operationId: list_7
       parameters:
         - in: path
           name: restaurantId
@@ -258,7 +258,7 @@ paths:
         - public-photo-rest-controller
   /api/v1/public/restaurants/{restaurantId}/reviews:
     get:
-      operationId: list_5
+      operationId: list_6
       parameters:
         - in: path
           name: restaurantId
@@ -342,7 +342,7 @@ paths:
         - signup-rest-controller
   /api/v1/public/tag-implications:
     get:
-      operationId: list_3
+      operationId: list_4
       responses:
         "200":
           content:
@@ -354,7 +354,19 @@ paths:
         - public-tag-implication-rest-controller
   /api/v1/public/tags:
     get:
-      operationId: list_2
+      operationId: list_3
+      parameters:
+        - in: query
+          name: category
+          required: false
+          schema:
+            type: string
+            enum:
+              - REGIME
+              - TYPE
+              - SPECIALTY
+              - VENUE_TYPE
+              - SERVICE_AND_PLACE
       responses:
         "200":
           content:
@@ -385,7 +397,7 @@ paths:
         - public-user-rest-controller
   /api/v1/public/users/{userId}/reviews:
     get:
-      operationId: list_1
+      operationId: list_2
       parameters:
         - in: path
           name: userId
@@ -416,7 +428,48 @@ paths:
           description: OK
       tags:
         - public-user-reviews-rest-controller
+  /api/v1/user/connections:
+    get:
+      operationId: list_1
+      parameters:
+        - in: query
+          name: cursor
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: size
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        "200":
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/MyConnectionsPageResponse"
+          description: OK
+      tags:
+        - connection-rest-controller
   /api/v1/user/connections/{targetId}:
+    delete:
+      operationId: delete
+      parameters:
+        - in: path
+          name: targetId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: No Content
+      tags:
+        - connection-rest-controller
     post:
       operationId: connect
       parameters:
@@ -487,6 +540,40 @@ paths:
             format: double
             maximum: 180.0
             minimum: -180.0
+        - in: query
+          name: tag
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              maxLength: 650
+              minLength: 0
+              pattern: "^[a-z0-9]+(-[a-z0-9]+)*(,[a-z0-9]+(-[a-z0-9]+)*)*$"
+            maxItems: 10
+            minItems: 0
+        - in: query
+          name: name
+          required: false
+          schema:
+            type: string
+            maxLength: 100
+            minLength: 0
+        - in: query
+          name: dineIn
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: takeOut
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: delivery
+          required: false
+          schema:
+            type: boolean
       responses:
         "200":
           content:
@@ -864,6 +951,10 @@ components:
           type: string
           maxLength: 127
           minLength: 0
+        labelI18n:
+          type: object
+          additionalProperties:
+            type: string
         slug:
           type: string
           maxLength: 64
@@ -884,6 +975,23 @@ components:
           format: uuid
         signupUrl:
           type: string
+    MyConnectionResponse:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/PublicUserResponse"
+    MyConnectionsPageResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/MyConnectionResponse"
+        page:
+          $ref: "#/components/schemas/PageMeta"
     PageMeta:
       type: object
       properties:
@@ -972,6 +1080,8 @@ components:
         id:
           type: string
           format: uuid
+        isFollowedByMe:
+          type: boolean
     RecommendationResponse:
       type: object
       properties:
@@ -1208,6 +1318,10 @@ components:
           format: uuid
         label:
           type: string
+        labelI18n:
+          type: object
+          additionalProperties:
+            type: string
         slug:
           type: string
     TagSummary:
