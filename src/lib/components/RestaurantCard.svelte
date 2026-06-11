@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { getLocale } from '$lib/paraglide/runtime';
+	import { tagLabel } from '$lib/i18n/tagLabel';
 	import * as m from '$lib/paraglide/messages';
 	import type {
 		RestaurantAffinityResponse,
@@ -166,7 +167,7 @@
 			<ul class="flex flex-wrap gap-1">
 				{#each restaurant.tags as tag (tag.slug)}
 					<li class="rounded-full bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-700">
-						{tag.label}
+						{tagLabel(tag)}
 					</li>
 				{/each}
 			</ul>

@@ -182,7 +182,7 @@
 	<div class="mt-3 flex flex-wrap items-center gap-1.5">
 		{#each tags as tag (tag.slug)}
 			<span class="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-700">
-				{tag.label}
+				{tagLabel(tag)}
 			</span>
 		{/each}
 		{#if canEdit}

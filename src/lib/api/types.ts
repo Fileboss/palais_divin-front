@@ -21,6 +21,7 @@ export const TAG_CATEGORIES: TagCategory[] = [
 export interface TagSummary {
 	slug: string;
 	label: string;
+	labelI18n?: Record<string, string>;
 	category: TagCategory;
 }
 
