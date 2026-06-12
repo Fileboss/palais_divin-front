@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { searchGeocode } from '$lib/api/geocode';
 	import * as m from '$lib/paraglide/messages';
 	import type { SortLocation } from '$lib/sortLocation';
 
@@ -81,24 +82,9 @@
 		searching = true;
 		searched = false;
 		try {
-			const url =
-				'https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=0&q=' +
-				encodeURIComponent(q);
-			const res = await fetch(url, {
-				signal: controller.signal,
-				headers: { Accept: 'application/json' }
-			});
-			if (!res.ok) {
-				suggestions = [];
-				return;
-			}
-			const data = (await res.json()) as { display_name: string; lat: string; lon: string }[];
-			suggestions = data
-				.map((d) => ({
-					label: d.display_name,
-					lat: Number.parseFloat(d.lat),
-					lng: Number.parseFloat(d.lon)
-				}))
+			const matches = await searchGeocode(fetch, q, 5, controller.signal);
+			suggestions = matches
+				.map((d) => ({ label: d.label, lat: d.latitude, lng: d.longitude }))
 				.filter((d) => Number.isFinite(d.lat) && Number.isFinite(d.lng));
 		} catch (err) {
 			if ((err as { name?: string } | null)?.name === 'AbortError') return;

@@ -38,9 +38,7 @@ const CSP_DIRECTIVES = [
 	// Photo URLs are backend-presigned and env-dependent; allowing https: keeps
 	// us flexible until the storage origin is fixed.
 	"img-src 'self' data: https:",
-	// LocationPicker hits Nominatim directly until the server-side geocode
-	// proxy lands (see doc/missing.md).
-	"connect-src 'self' https://nominatim.openstreetmap.org",
+	"connect-src 'self'",
 	"font-src 'self'",
 	"object-src 'none'",
 	"base-uri 'self'",

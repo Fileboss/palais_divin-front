@@ -1,6 +1,7 @@
 import {
 	ApiError,
 	type CreateReviewRequest,
+	type MyReviewsBatchResponse,
 	type ReviewResponse,
 	type ReviewsPageResponse
 } from './types';
@@ -61,6 +62,22 @@ export async function getMyReview(
 	);
 	if (res.status === 404) return null;
 	return parseOrThrow<ReviewResponse>(res);
+}
+
+export async function listMyReviewsBatch(
+	fetcher: Fetcher,
+	restaurantIds: string[]
+): Promise<Record<string, ReviewResponse | null>> {
+	const result: Record<string, ReviewResponse | null> = {};
+	if (restaurantIds.length === 0) return result;
+	const qs = new URLSearchParams();
+	for (const id of restaurantIds) qs.append('restaurantIds', id);
+	const res = await fetcher(`/api/v1/user/reviews?${qs}`, {
+		headers: { Accept: 'application/json' }
+	});
+	const body = await parseOrThrow<MyReviewsBatchResponse>(res);
+	for (const id of restaurantIds) result[id] = body.reviews[id] ?? null;
+	return result;
 }
 
 export async function listReviewsPublic(

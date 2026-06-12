@@ -1,6 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import { listRestaurantsPublic, type RestaurantsPublicSort } from '$lib/api/restaurants';
-import { getMyReview } from '$lib/api/reviews';
+import { listMyReviewsBatch } from '$lib/api/reviews';
 import { ApiError, type ReviewResponse } from '$lib/api/types';
 import { parseFilterState } from '$lib/filterState';
 import type { PageServerLoad } from './$types';
@@ -52,19 +52,16 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 			takeOut: filters.takeOut,
 			delivery: filters.delivery
 		});
-		const myReviews: Record<string, ReviewResponse | null> = {};
-		const sub = locals.session?.sub;
-		if (sub && data.length > 0) {
-			const entries = await Promise.all(
-				data.map(async (r) => {
-					try {
-						return [r.id, await getMyReview(fetch, r.id)] as const;
-					} catch {
-						return [r.id, null] as const;
-					}
-				})
-			);
-			for (const [id, review] of entries) myReviews[id] = review;
+		let myReviews: Record<string, ReviewResponse | null> = {};
+		if (locals.session?.sub && data.length > 0) {
+			try {
+				myReviews = await listMyReviewsBatch(
+					fetch,
+					data.map((r) => r.id)
+				);
+			} catch {
+				myReviews = {};
+			}
 		}
 		return { restaurants: data, meta: page, myReviews, sort, lat, lng, filters };
 	} catch (err) {

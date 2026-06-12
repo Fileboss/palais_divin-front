@@ -18,7 +18,7 @@
 		listRestaurantsPublic,
 		type RestaurantsPublicSort
 	} from '$lib/api/restaurants';
-	import { getMyReview } from '$lib/api/reviews';
+	import { listMyReviewsBatch } from '$lib/api/reviews';
 	import type { PageMeta, PhotoResponse, RestaurantResponse, ReviewResponse } from '$lib/api/types';
 	import { loadSortLocation, saveSortLocation, type SortLocation } from '$lib/sortLocation';
 	import { appendFilterState } from '$lib/filterState';
@@ -131,18 +131,15 @@
 			restaurants = [...restaurants, ...next.data];
 			meta = next.page;
 			if (userId && next.data.length > 0) {
-				const entries = await Promise.all(
-					next.data.map(async (r) => {
-						try {
-							return [r.id, await getMyReview(fetch, r.id)] as const;
-						} catch {
-							return [r.id, null] as const;
-						}
-					})
-				);
-				const merged = { ...myReviews };
-				for (const [id, review] of entries) merged[id] = review;
-				myReviews = merged;
+				try {
+					const batch = await listMyReviewsBatch(
+						fetch,
+						next.data.map((r) => r.id)
+					);
+					myReviews = { ...myReviews, ...batch };
+				} catch {
+					// keep prior myReviews; cards just won't show "my rating" for new rows
+				}
 			}
 		} catch {
 			loadMoreError = m.error_load_more_failed();

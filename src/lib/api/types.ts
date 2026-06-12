@@ -134,6 +134,16 @@ export interface ReviewsPageResponse {
 	page: PageMeta;
 }
 
+export interface MyReviewsBatchResponse {
+	reviews: Record<string, ReviewResponse>;
+}
+
+export interface GeocodeMatch {
+	label: string;
+	latitude: number;
+	longitude: number;
+}
+
 export interface CreateReviewRequest {
 	rating: number;
 	comment?: string;
