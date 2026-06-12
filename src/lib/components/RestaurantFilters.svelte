@@ -207,20 +207,13 @@
 {/snippet}
 
 <section class="flex flex-col gap-3 rounded-lg border border-stone-200 bg-stone-50/60 p-4">
-	<div
-		role="button"
-		tabindex="0"
-		aria-expanded={expanded}
-		onclick={() => (expanded = !expanded)}
-		onkeydown={(ev) => {
-			if (ev.key === 'Enter' || ev.key === ' ') {
-				ev.preventDefault();
-				expanded = !expanded;
-			}
-		}}
-		class="-m-1 flex cursor-pointer flex-wrap items-center justify-between gap-2 rounded p-1 select-none hover:text-stone-900"
-	>
-		<div class="flex items-center gap-2 text-sm font-medium text-stone-700">
+	<div class="-m-1 flex flex-wrap items-center justify-between gap-2 p-1">
+		<button
+			type="button"
+			aria-expanded={expanded}
+			onclick={() => (expanded = !expanded)}
+			class="flex items-center gap-2 rounded text-sm font-medium text-stone-700 hover:text-stone-900 focus:ring-2 focus:ring-stone-500 focus:outline-none"
+		>
 			<span
 				aria-hidden="true"
 				class="inline-block text-[10px] text-stone-400 transition-transform"
@@ -234,14 +227,11 @@
 					{m.filter_count({ count: activeCount })}
 				</span>
 			{/if}
-		</div>
+		</button>
 		{#if activeCount > 0}
 			<button
 				type="button"
-				onclick={(ev) => {
-					ev.stopPropagation();
-					handleReset();
-				}}
+				onclick={handleReset}
 				class="text-xs font-medium text-stone-500 underline-offset-4 hover:text-stone-900 hover:underline"
 			>
 				{m.filter_reset()}

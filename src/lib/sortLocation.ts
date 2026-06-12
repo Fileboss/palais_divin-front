@@ -31,12 +31,3 @@ export function saveSortLocation(loc: SortLocation): void {
 		// quota / private mode — ignore
 	}
 }
-
-export function clearSortLocation(): void {
-	if (typeof window === 'undefined') return;
-	try {
-		window.localStorage.removeItem(KEY);
-	} catch {
-		// ignore
-	}
-}

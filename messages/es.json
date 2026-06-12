@@ -144,6 +144,7 @@
 	"photo_upload_failed_one": "No se pudo subir {name}.",
 	"photo_upload_partial_title": "No se pudieron subir algunas fotos.",
 	"photo_upload_partial_continue": "Continuar igualmente",
+	"tag_attach_partial": "No se pudieron adjuntar {count} etiqueta(s).",
 	"photo_too_many": "Máximo 5 fotos.",
 	"photo_too_large": "{name} supera los 10 MB.",
 	"photo_bad_type": "{name} no es una imagen.",

@@ -34,6 +34,7 @@
 				restaurant: RestaurantResponse;
 				photos: PhotoResponse[];
 				failed: string[];
+				failedTagCount: number;
 		  };
 
 	let phase = $state<Phase>({ kind: 'idle' });
@@ -119,17 +120,22 @@
 			return;
 		}
 
+		let failedTagCount = 0;
 		for (const tagId of selectedTagIds) {
 			try {
 				await attachRestaurantTag(fetch, restaurant.id, tagId);
 			} catch {
-				// Tag attach is best-effort: the restaurant exists, the user can add tags later.
+				failedTagCount += 1;
 			}
 		}
 
 		if (files.length === 0) {
-			oncreated(restaurant, []);
-			close();
+			if (failedTagCount === 0) {
+				oncreated(restaurant, []);
+				close();
+			} else {
+				phase = { kind: 'partial', restaurant, photos: [], failed: [], failedTagCount };
+			}
 			return;
 		}
 
@@ -150,11 +156,11 @@
 			phase = { kind: 'uploading', done: i + 1, total };
 		}
 
-		if (failed.length === 0) {
+		if (failed.length === 0 && failedTagCount === 0) {
 			oncreated(restaurant, uploaded);
 			close();
 		} else {
-			phase = { kind: 'partial', restaurant, photos: uploaded, failed };
+			phase = { kind: 'partial', restaurant, photos: uploaded, failed, failedTagCount };
 		}
 	}
 
@@ -265,12 +271,23 @@
 
 		{#if phase.kind === 'partial'}
 			<div class="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm" role="alert">
-				<p class="font-medium text-amber-900">{m.photo_upload_partial_title()}</p>
-				<ul class="mt-1 list-disc pl-5 text-amber-800">
-					{#each phase.failed as name (name)}
-						<li>{m.photo_upload_failed_one({ name })}</li>
-					{/each}
-				</ul>
+				{#if phase.failed.length > 0}
+					<p class="font-medium text-amber-900">{m.photo_upload_partial_title()}</p>
+					<ul class="mt-1 list-disc pl-5 text-amber-800">
+						{#each phase.failed as name (name)}
+							<li>{m.photo_upload_failed_one({ name })}</li>
+						{/each}
+					</ul>
+				{/if}
+				{#if phase.failedTagCount > 0}
+					<p
+						class="text-amber-800"
+						class:mt-2={phase.failed.length > 0}
+						class:font-medium={phase.failed.length === 0}
+					>
+						{m.tag_attach_partial({ count: phase.failedTagCount })}
+					</p>
+				{/if}
 			</div>
 		{/if}
 

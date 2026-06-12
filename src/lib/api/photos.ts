@@ -75,7 +75,7 @@ export async function listPublicRestaurantPhotos(
 export async function uploadToObjectStorage(uploadUrl: string, file: File): Promise<void> {
 	const res = await fetch(uploadUrl, {
 		method: 'PUT',
-		headers: { 'Content-Type': file.type },
+		headers: { 'Content-Type': file.type || 'application/octet-stream' },
 		body: file
 	});
 	if (!res.ok) {

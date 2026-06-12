@@ -3,20 +3,15 @@
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { tagLabel } from '$lib/i18n/tagLabel';
 	import * as m from '$lib/paraglide/messages';
-	import type {
-		RestaurantAffinityResponse,
-		RestaurantResponse,
-		ReviewResponse
-	} from '$lib/api/types';
+	import type { RestaurantResponse, ReviewResponse } from '$lib/api/types';
 	import { ApiError } from '$lib/api/types';
-	import { createReview, updateReview } from '$lib/api/reviews';
+	import { createReview, getMyReview, updateReview } from '$lib/api/reviews';
 	import { deleteRestaurant } from '$lib/api/restaurants';
 	import { getOrCreateKey, clearKey } from '$lib/idempotency';
 
 	let {
 		restaurant,
 		showMyReview = false,
-		affinity = null,
 		userId = null,
 		myReview = null,
 		isAdmin = false,
@@ -25,7 +20,6 @@
 	}: {
 		restaurant: RestaurantResponse;
 		showMyReview?: boolean;
-		affinity?: RestaurantAffinityResponse | null;
 		userId?: string | null;
 		myReview?: ReviewResponse | null;
 		isAdmin?: boolean;
@@ -115,14 +109,15 @@
 			reviewState = 'idle';
 		} catch (err) {
 			if (err instanceof ApiError && err.status === 409 && !myReview) {
-				// A review already exists but we don't have it locally (e.g. after navigation).
-				// There is no GET user endpoint, so recover by updating with the same data.
 				try {
-					const recovered = await updateReview(fetch, restaurant.id, body);
-					onreviewchange?.(recovered);
-					reviewState = 'idle';
-					clearKey(scopeKey);
-					return;
+					const existing = await getMyReview(fetch, restaurant.id);
+					if (existing) {
+						onreviewchange?.(existing);
+						reviewError = m.review_already_reviewed();
+						reviewState = 'composing';
+						clearKey(scopeKey);
+						return;
+					}
 				} catch {
 					// fall through to generic error
 				}
@@ -183,11 +178,6 @@
 		{#if affinityLabel}
 			<p class="text-sm font-medium text-emerald-600">
 				{m.recommendations_affinity()}: {affinityLabel}
-			</p>
-		{/if}
-		{#if affinity && affinity.recommenderCount > 0}
-			<p class="text-sm font-medium text-emerald-600">
-				{m.recommendations_recommenders({ count: affinity.recommenderCount })}
 			</p>
 		{/if}
 		<p class="mt-auto text-xs text-stone-400">

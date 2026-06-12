@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SvelteSet } from 'svelte/reactivity';
 	import * as m from '$lib/paraglide/messages';
 	import { attachRestaurantTag, detachRestaurantTag, listTagCatalog } from '$lib/api/tags';
 	import { tagLabel } from '$lib/i18n/tagLabel';
@@ -86,27 +87,35 @@
 		saveError = null;
 		const toAdd = selected.filter((id) => !initialIds.includes(id));
 		const toRemove = initialIds.filter((id) => !selected.includes(id));
-		let anyFailed = false;
-		await Promise.all([
-			...toAdd.map((id) =>
-				attachRestaurantTag(fetch, restaurantId, id).catch(() => {
-					anyFailed = true;
-				})
-			),
-			...toRemove.map((id) =>
-				detachRestaurantTag(fetch, restaurantId, id).catch(() => {
-					anyFailed = true;
-				})
-			)
-		]);
+
+		const addResults = await Promise.allSettled(
+			toAdd.map((id) => attachRestaurantTag(fetch, restaurantId, id))
+		);
+		const removeResults = await Promise.allSettled(
+			toRemove.map((id) => detachRestaurantTag(fetch, restaurantId, id))
+		);
+
+		const succeededAdds = toAdd.filter((_, i) => addResults[i].status === 'fulfilled');
+		const succeededRemoves = toRemove.filter((_, i) => removeResults[i].status === 'fulfilled');
+		const anyFailed =
+			addResults.some((r) => r.status === 'rejected') ||
+			removeResults.some((r) => r.status === 'rejected');
+
+		const nextIds = new SvelteSet(initialIds);
+		for (const id of succeededAdds) nextIds.add(id);
+		for (const id of succeededRemoves) nextIds.delete(id);
+
+		tags = flatCatalog
+			.filter((t) => nextIds.has(t.id))
+			.map((t) => ({ slug: t.slug, label: t.label, category: t.category }));
+
 		if (anyFailed) {
 			saveError = m.restaurant_tags_save_failed();
+			selected = flatCatalog.filter((t) => nextIds.has(t.id)).map((t) => t.id);
 			saving = false;
 			return;
 		}
-		tags = flatCatalog
-			.filter((t) => selected.includes(t.id))
-			.map((t) => ({ slug: t.slug, label: t.label, category: t.category }));
+
 		editing = false;
 		saving = false;
 	}

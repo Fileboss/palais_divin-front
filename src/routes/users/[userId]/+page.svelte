@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { getLocale } from '$lib/paraglide/runtime';
 	import * as m from '$lib/paraglide/messages';
 	import Header from '$lib/components/Header.svelte';
@@ -24,7 +25,7 @@
 	let followingMeta = $state<PageMeta | null>(data.followingMeta);
 	let loadingMoreFollowing = $state(false);
 	let followingError = $state<string | null>(null);
-	let unfollowingIds = $state<Set<string>>(new Set());
+	const unfollowingIds = new SvelteSet<string>();
 
 	const memberSince = $derived(
 		new Date(data.profile.createdAt).toLocaleDateString(getLocale(), {
@@ -87,7 +88,7 @@
 
 	async function handleUnfollow(userId: string) {
 		if (unfollowingIds.has(userId)) return;
-		unfollowingIds = new Set([...unfollowingIds, userId]);
+		unfollowingIds.add(userId);
 		followingError = null;
 		try {
 			await unfollow(fetch, userId);
@@ -95,9 +96,7 @@
 		} catch {
 			followingError = m.error_unfollow_failed();
 		} finally {
-			const next = new Set(unfollowingIds);
-			next.delete(userId);
-			unfollowingIds = next;
+			unfollowingIds.delete(userId);
 		}
 	}
 </script>

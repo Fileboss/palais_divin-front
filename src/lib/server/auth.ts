@@ -12,7 +12,7 @@ export const RETURN_TO_COOKIE = 'pd_oauth_return_to';
 const REFRESH_SKEW_SECONDS = 60;
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 const OAUTH_TMP_MAX_AGE = 5 * 60;
-const COOKIE_CHUNK_SIZE = 3500;
+const COOKIE_CHUNK_SIZE = 3000;
 
 function baseCookieOpts() {
 	return { httpOnly: true, sameSite: 'lax' as const, path: '/', secure: !dev };
@@ -86,6 +86,9 @@ export function sessionFromTokens(
 	previous?: SessionPayload
 ): SessionPayload {
 	const accessClaims = decodeJwtClaims(tokens.access_token);
+	if (tokens.expires_in == null) {
+		console.warn('[auth] token response missing expires_in; defaulting to 60s refresh cadence');
+	}
 	const expiresIn = tokens.expires_in ?? 60;
 	return {
 		access_token: tokens.access_token,

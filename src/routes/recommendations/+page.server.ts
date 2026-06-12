@@ -23,9 +23,17 @@ function parseCoord(raw: string | null): number | undefined {
 	return Number.isFinite(n) ? n : undefined;
 }
 
+function loginUrlFor(url: URL): string {
+	const returnTo = new URL(url);
+	returnTo.searchParams.set('auth_retry', '1');
+	return `/auth/login?return_to=${encodeURIComponent(returnTo.pathname + returnTo.search)}`;
+}
+
 export const load: PageServerLoad = async ({ fetch, locals, url }) => {
+	const isAuthRetry = url.searchParams.get('auth_retry') === '1';
 	if (!locals.session) {
-		redirect(302, `/auth/login?return_to=${encodeURIComponent(url.pathname + url.search)}`);
+		if (isAuthRetry) error(403, 'Authentication failed for this page.');
+		redirect(302, loginUrlFor(url));
 	}
 	const sort = parseSort(url.searchParams.get('sort'));
 	const lat = sort === 'DISTANCE_ASC' ? parseCoord(url.searchParams.get('lat')) : undefined;
@@ -46,7 +54,8 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 		return { recommendations: data, meta: page, sort, lat, lng, filters };
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 401) {
-			redirect(302, `/auth/login?return_to=${encodeURIComponent(url.pathname + url.search)}`);
+			if (isAuthRetry) error(403, 'Authentication failed for this page.');
+			redirect(302, loginUrlFor(url));
 		}
 		if (err instanceof ApiError) {
 			console.error('[recommendations load] upstream error', {
@@ -54,7 +63,8 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 				lat,
 				lng,
 				status: err.status,
-				problem: err.problem,
+				problemType: err.problem?.type,
+				problemTitle: err.problem?.title,
 				message: err.message
 			});
 		} else {

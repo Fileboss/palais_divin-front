@@ -144,6 +144,7 @@
 	"photo_upload_failed_one": "{name} 업로드에 실패했습니다.",
 	"photo_upload_partial_title": "일부 사진을 업로드하지 못했습니다.",
 	"photo_upload_partial_continue": "그래도 계속",
+	"tag_attach_partial": "태그 {count}개를 추가하지 못했습니다.",
 	"photo_too_many": "사진은 최대 5장까지.",
 	"photo_too_large": "{name}이(가) 10 MB를 초과합니다.",
 	"photo_bad_type": "{name}은(는) 이미지가 아닙니다.",

@@ -13,9 +13,13 @@
 		emptyFilterState,
 		type FilterState
 	} from '$lib/components/RestaurantFilters.svelte';
-	import { listRestaurantsPublic, type RestaurantsPublicSort } from '$lib/api/restaurants';
+	import {
+		getRestaurantPublic,
+		listRestaurantsPublic,
+		type RestaurantsPublicSort
+	} from '$lib/api/restaurants';
 	import { getMyReview } from '$lib/api/reviews';
-	import type { PageMeta, RestaurantResponse, ReviewResponse } from '$lib/api/types';
+	import type { PageMeta, PhotoResponse, RestaurantResponse, ReviewResponse } from '$lib/api/types';
 	import { loadSortLocation, saveSortLocation, type SortLocation } from '$lib/sortLocation';
 	import { appendFilterState } from '$lib/filterState';
 	import type { PageData } from './$types';
@@ -147,9 +151,18 @@
 		}
 	}
 
-	function handleCreated(restaurant: RestaurantResponse) {
+	function handleCreated(restaurant: RestaurantResponse, photos: PhotoResponse[]) {
 		restaurants = [restaurant, ...restaurants];
 		myReviews = { ...myReviews, [restaurant.id]: null };
+		// PhotoResponse has no signed URL — refetch the restaurant so its
+		// backend-built thumbnail surfaces without a full page reload.
+		if (photos.length > 0 && restaurant.thumbnail == null) {
+			getRestaurantPublic(fetch, restaurant.id)
+				.then((fresh) => {
+					restaurants = restaurants.map((r) => (r.id === fresh.id ? fresh : r));
+				})
+				.catch(() => {});
+		}
 	}
 
 	function handleReviewChange(review: ReviewResponse) {

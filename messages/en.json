@@ -144,6 +144,7 @@
 	"photo_upload_failed_one": "Failed to upload {name}.",
 	"photo_upload_partial_title": "Some photos could not be uploaded.",
 	"photo_upload_partial_continue": "Continue anyway",
+	"tag_attach_partial": "{count} tag(s) couldn't be attached.",
 	"photo_too_many": "5 photos maximum.",
 	"photo_too_large": "{name} exceeds 10 MB.",
 	"photo_bad_type": "{name} is not an image.",

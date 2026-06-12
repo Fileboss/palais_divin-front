@@ -54,9 +54,14 @@
 
 	$effect(() => {
 		if (!isAuthed) return;
-		getRestaurantAffinity(fetch, data.restaurant.id)
-			.then((a) => (affinity = a))
+		affinity = null;
+		const controller = new AbortController();
+		getRestaurantAffinity(fetch, data.restaurant.id, { signal: controller.signal })
+			.then((a) => {
+				if (!controller.signal.aborted) affinity = a;
+			})
 			.catch(() => {});
+		return () => controller.abort();
 	});
 
 	async function handleLoadMore() {

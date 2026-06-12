@@ -26,7 +26,14 @@ function parseCoord(raw: string | null): number | undefined {
 	return Number.isFinite(n) ? n : undefined;
 }
 
+function loginUrlFor(url: URL): string {
+	const returnTo = new URL(url);
+	returnTo.searchParams.set('auth_retry', '1');
+	return `/auth/login?return_to=${encodeURIComponent(returnTo.pathname + returnTo.search)}`;
+}
+
 export const load: PageServerLoad = async ({ fetch, locals, url }) => {
+	const isAuthRetry = url.searchParams.get('auth_retry') === '1';
 	const requestedSort = parseSort(url.searchParams.get('sort'));
 	const sort: RestaurantsPublicSort =
 		requestedSort === 'AFFINITY_DESC' && !locals.session ? 'CREATED_AT_DESC' : requestedSort;
@@ -62,20 +69,23 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 		return { restaurants: data, meta: page, myReviews, sort, lat, lng, filters };
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 401) {
-			redirect(302, `/auth/login?return_to=${encodeURIComponent(url.pathname + url.search)}`);
+			if (isAuthRetry) error(403, 'Authentication failed for this page.');
+			redirect(302, loginUrlFor(url));
 		}
 		if (
 			err instanceof ApiError &&
 			typeof err.problem?.type === 'string' &&
 			err.problem.type.endsWith('/problems/affinity-requires-auth')
 		) {
-			redirect(302, `/auth/login?return_to=${encodeURIComponent(url.pathname + url.search)}`);
+			if (isAuthRetry) error(403, 'Authentication failed for this page.');
+			redirect(302, loginUrlFor(url));
 		}
 		if (err instanceof ApiError) {
 			console.error('[home load] upstream error', {
 				sort,
 				status: err.status,
-				problem: err.problem,
+				problemType: err.problem?.type,
+				problemTitle: err.problem?.title,
 				message: err.message
 			});
 		} else {

@@ -144,6 +144,7 @@
 	"photo_upload_failed_one": "Échec de l'envoi de {name}.",
 	"photo_upload_partial_title": "Certaines photos n'ont pas été envoyées.",
 	"photo_upload_partial_continue": "Continuer quand même",
+	"tag_attach_partial": "{count} étiquette(s) n'ont pas pu être ajoutées.",
 	"photo_too_many": "5 photos maximum.",
 	"photo_too_large": "{name} dépasse 10 Mo.",
 	"photo_bad_type": "{name} n'est pas une image.",

@@ -7,7 +7,7 @@
 	let {
 		user
 	}: {
-		user?: { sub: string; username: string; roles?: string[] } | null;
+		user?: { sub: string; username: string; roles: string[] } | null;
 	} = $props();
 
 	const isAdmin = $derived(user?.roles?.includes('ADMIN') ?? false);
@@ -27,6 +27,7 @@
 	let el = $state<HTMLDivElement | null>(null);
 
 	$effect(() => {
+		if (!open) return;
 		const handler = (e: MouseEvent) => {
 			if (el && !el.contains(e.target as Node)) open = false;
 		};
@@ -36,7 +37,7 @@
 </script>
 
 <header
-	class="border-b border-stone-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+	class="relative z-50 border-b border-stone-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
 >
 	<div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
 		<a href={resolve('/')} class="text-lg font-semibold tracking-tight text-stone-900">

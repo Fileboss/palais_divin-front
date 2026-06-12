@@ -144,6 +144,7 @@
 	"photo_upload_failed_one": "{name} 上传失败。",
 	"photo_upload_partial_title": "部分照片未能上传。",
 	"photo_upload_partial_continue": "仍然继续",
+	"tag_attach_partial": "无法添加 {count} 个标签。",
 	"photo_too_many": "最多 5 张照片。",
 	"photo_too_large": "{name} 超过 10 MB。",
 	"photo_bad_type": "{name} 不是图片。",

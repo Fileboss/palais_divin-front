@@ -62,10 +62,12 @@ export async function getRestaurantPublic(
 
 export async function getRestaurantAffinity(
 	fetcher: Fetcher,
-	id: string
+	id: string,
+	init?: RequestInit
 ): Promise<RestaurantAffinityResponse> {
 	const res = await fetcher(`${USER_PATH}/${encodeURIComponent(id)}/affinity`, {
-		headers: { Accept: 'application/json' }
+		...init,
+		headers: { Accept: 'application/json', ...(init?.headers ?? {}) }
 	});
 	return parseOrThrow<RestaurantAffinityResponse>(res);
 }

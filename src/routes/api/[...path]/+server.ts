@@ -2,15 +2,30 @@ import { env } from '$env/dynamic/private';
 import { clearSession, readSession, refreshIfNeeded } from '$lib/server/auth';
 import type { RequestHandler } from './$types';
 
-const HOP_BY_HOP = new Set([
-	'connection',
-	'keep-alive',
-	'proxy-authenticate',
-	'proxy-authorization',
-	'te',
-	'trailer',
-	'transfer-encoding',
-	'upgrade'
+const PUBLIC_PREFIX = '/api/v1/public/';
+const USER_PREFIX = '/api/v1/user/';
+const ADMIN_PREFIX = '/api/v1/admin/';
+
+const REQUEST_HEADER_ALLOWLIST = new Set([
+	'content-type',
+	'content-length',
+	'accept',
+	'accept-language',
+	'idempotency-key',
+	'if-none-match',
+	'if-modified-since'
+]);
+
+const RESPONSE_HEADER_ALLOWLIST = new Set([
+	'content-type',
+	'content-length',
+	'content-encoding',
+	'content-disposition',
+	'cache-control',
+	'etag',
+	'last-modified',
+	'location',
+	'vary'
 ]);
 
 async function proxy(event: Parameters<RequestHandler>[0]): Promise<Response> {
@@ -18,20 +33,25 @@ async function proxy(event: Parameters<RequestHandler>[0]): Promise<Response> {
 	if (!apiBase) return new Response('API_BASE_URL not configured', { status: 500 });
 
 	const upstreamPath = `/api/${event.params.path}`;
-	const requiresAdmin = upstreamPath.startsWith('/api/v1/admin/');
-	const requiresAuth = requiresAdmin || upstreamPath.startsWith('/api/v1/user/');
+	const isPublic = upstreamPath.startsWith(PUBLIC_PREFIX);
+	const isUser = upstreamPath.startsWith(USER_PREFIX);
+	const isAdmin = upstreamPath.startsWith(ADMIN_PREFIX);
+
+	if (!isPublic && !isUser && !isAdmin) {
+		return new Response('Not Found', { status: 404 });
+	}
 
 	let session = await readSession(event.cookies);
 	if (session) session = await refreshIfNeeded(event.cookies, session);
 
-	if (requiresAuth && !session) {
+	if ((isUser || isAdmin) && !session) {
 		return new Response(
 			JSON.stringify({ type: 'about:blank', title: 'Unauthorized', status: 401 }),
 			{ status: 401, headers: { 'content-type': 'application/problem+json' } }
 		);
 	}
 
-	if (requiresAdmin && session && !session.roles.includes('ADMIN')) {
+	if (isAdmin && session && !session.roles.includes('ADMIN')) {
 		return new Response(JSON.stringify({ type: 'about:blank', title: 'Forbidden', status: 403 }), {
 			status: 403,
 			headers: { 'content-type': 'application/problem+json' }
@@ -43,32 +63,44 @@ async function proxy(event: Parameters<RequestHandler>[0]): Promise<Response> {
 
 	const headers = new Headers();
 	for (const [name, value] of event.request.headers) {
-		const lower = name.toLowerCase();
-		if (HOP_BY_HOP.has(lower)) continue;
-		if (lower === 'cookie' || lower === 'host') continue;
-		headers.set(name, value);
+		if (REQUEST_HEADER_ALLOWLIST.has(name.toLowerCase())) {
+			headers.set(name, value);
+		}
 	}
 	if (session) headers.set('Authorization', `Bearer ${session.access_token}`);
 
 	const method = event.request.method.toUpperCase();
 	const body = method === 'GET' || method === 'HEAD' ? undefined : event.request.body;
 
-	const upstream = await fetch(upstreamUrl.toString(), {
-		method,
-		headers,
-		body,
-		// @ts-expect-error — Node fetch needs this for streamed bodies
-		duplex: body ? 'half' : undefined
-	});
+	let upstream: Response;
+	try {
+		upstream = await fetch(upstreamUrl.toString(), {
+			method,
+			headers,
+			body,
+			signal: AbortSignal.timeout(15_000),
+			// @ts-expect-error — Node fetch needs this for streamed bodies
+			duplex: body ? 'half' : undefined
+		});
+	} catch (err) {
+		if (err instanceof DOMException && err.name === 'TimeoutError') {
+			return new Response(
+				JSON.stringify({ type: 'about:blank', title: 'Gateway Timeout', status: 504 }),
+				{ status: 504, headers: { 'content-type': 'application/problem+json' } }
+			);
+		}
+		throw err;
+	}
 
-	if (upstream.status === 401 && requiresAuth && session) {
+	if (upstream.status === 401 && (isUser || isAdmin) && session) {
 		clearSession(event.cookies);
 	}
 
 	const responseHeaders = new Headers();
 	for (const [name, value] of upstream.headers) {
-		if (HOP_BY_HOP.has(name.toLowerCase())) continue;
-		responseHeaders.set(name, value);
+		if (RESPONSE_HEADER_ALLOWLIST.has(name.toLowerCase())) {
+			responseHeaders.set(name, value);
+		}
 	}
 
 	return new Response(upstream.body, {

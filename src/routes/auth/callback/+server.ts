@@ -9,12 +9,13 @@ import {
 	sessionFromTokens,
 	writeSession
 } from '$lib/server/auth';
+import { safeReturnTo } from '$lib/server/safeRedirect';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url, cookies, request }) => {
 	const expectedState = cookies.get(STATE_COOKIE);
 	const codeVerifier = cookies.get(PKCE_COOKIE);
-	const returnTo = cookies.get(RETURN_TO_COOKIE) ?? '/';
+	const returnTo = safeReturnTo(cookies.get(RETURN_TO_COOKIE));
 
 	cookies.delete(STATE_COOKIE, { path: '/' });
 	cookies.delete(PKCE_COOKIE, { path: '/' });
@@ -46,6 +47,5 @@ export const GET: RequestHandler = async ({ url, cookies, request }) => {
 
 	await writeSession(cookies, sessionFromTokens(tokens));
 
-	const safeReturn = returnTo.startsWith('/') ? returnTo : '/';
-	redirect(302, safeReturn);
+	redirect(302, returnTo);
 };

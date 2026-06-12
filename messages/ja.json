@@ -144,6 +144,7 @@
 	"photo_upload_failed_one": "{name} のアップロードに失敗しました。",
 	"photo_upload_partial_title": "一部の写真をアップロードできませんでした。",
 	"photo_upload_partial_continue": "それでも続行",
+	"tag_attach_partial": "タグ {count}個を追加できませんでした。",
 	"photo_too_many": "写真は最大 5 枚まで。",
 	"photo_too_large": "{name} は 10 MB を超えています。",
 	"photo_bad_type": "{name} は画像ではありません。",

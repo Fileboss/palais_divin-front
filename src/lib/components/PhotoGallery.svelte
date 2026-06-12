@@ -57,7 +57,7 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKey} />
+<svelte:window onkeydown={handleKey} />
 
 {#if photos.length > 0}
 	<section class="mt-8">
@@ -123,7 +123,7 @@
 		</button>
 		<img
 			src={photos[activeIndex].url}
-			alt=""
+			alt={m.gallery_photo_aria({ index: activeIndex + 1, total: photos.length })}
 			class="pointer-events-none relative max-h-full max-w-full object-contain"
 		/>
 	</div>

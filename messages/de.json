@@ -144,6 +144,7 @@
 	"photo_upload_failed_one": "{name} konnte nicht hochgeladen werden.",
 	"photo_upload_partial_title": "Einige Fotos konnten nicht hochgeladen werden.",
 	"photo_upload_partial_continue": "Trotzdem fortfahren",
+	"tag_attach_partial": "{count} Tag(s) konnten nicht zugewiesen werden.",
 	"photo_too_many": "Maximal 5 Fotos.",
 	"photo_too_large": "{name} überschreitet 10 MB.",
 	"photo_bad_type": "{name} ist kein Bild.",

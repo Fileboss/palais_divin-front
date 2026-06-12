@@ -33,6 +33,7 @@
 	const currentLabel = $derived(options.find((o) => o.key === value)?.label ?? '');
 
 	$effect(() => {
+		if (!open) return;
 		const handler = (e: MouseEvent) => {
 			if (el && !el.contains(e.target as Node)) open = false;
 		};
