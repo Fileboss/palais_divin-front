@@ -42,12 +42,13 @@
 
 	const submitting = $derived(phase.kind === 'creating' || phase.kind === 'uploading');
 
-	const previews = $derived(files.map((file) => ({ file, url: URL.createObjectURL(file) })));
+	let previews = $state<{ file: File; url: string }[]>([]);
 
+	// Revokes any URLs still outstanding if the modal is torn down without
+	// going through close()/reset() (e.g. the parent unmounts it directly).
 	$effect(() => {
-		const urls = previews.map((p) => p.url);
 		return () => {
-			for (const url of urls) URL.revokeObjectURL(url);
+			for (const p of previews) URL.revokeObjectURL(p.url);
 		};
 	});
 
@@ -61,10 +62,12 @@
 	});
 
 	function reset() {
+		for (const p of previews) URL.revokeObjectURL(p.url);
 		name = '';
 		address = '';
 		selectedTagIds = [];
 		files = [];
+		previews = [];
 		fileValidationError = null;
 		submitError = null;
 		phase = { kind: 'idle' };
@@ -98,11 +101,14 @@
 			}
 		}
 		files = [...files, ...picked];
+		previews = [...previews, ...picked.map((file) => ({ file, url: URL.createObjectURL(file) }))];
 		input.value = '';
 	}
 
 	function removeFile(index: number) {
+		URL.revokeObjectURL(previews[index].url);
 		files = files.filter((_, i) => i !== index);
+		previews = previews.filter((_, i) => i !== index);
 		fileValidationError = null;
 	}
 

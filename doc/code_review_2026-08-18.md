@@ -75,6 +75,9 @@ instead of trying to out-guess it with string prefix checks.
 
 ### 2. `recommendations.ts` never attaches `ProblemDetails` — `src/lib/api/recommendations.ts:8`
 
+**Status: fixed.** `parseOrThrow` now calls `parseProblem` and attaches it,
+matching `restaurants.ts`.
+
 Its local `parseOrThrow` throws `new ApiError(res.status, ...)` with no third
 argument, unlike `restaurants.ts`, `tags.ts`, `users.ts`, `signup.ts`, which all
 call `parseProblem(res)` and attach `.problem`. Every `ApiError` from
@@ -90,6 +93,10 @@ it, same as the other API modules.
 
 ### 3. Restaurant detail page swallows all errors as empty state — `src/routes/restaurants/[id]/+page.server.ts:19`
 
+**Status: fixed.** Both fetches now use a local `emptyOn404` helper that only
+coerces a genuine 404 to the empty fallback; any other error propagates into
+the existing outer `error(503, ...)` path.
+
 `getMyReview` and the public photo list both catch *all* errors (not just
 404/"nothing yet") and coerce to `null` / `EMPTY_PHOTOS`.
 
@@ -103,6 +110,13 @@ Photos vanish silently the same way, with no error state ever surfaced.
 other status codes as a genuine error state.
 
 ### 4. Inconsistent error-detail surfacing across forms (feature coherence)
+
+**Status: partially addressed.** The `recommendations.ts` half (API layer not
+attaching `.problem`) is fixed — see #2. Wiring `CreateRestaurantModal` and
+the admin forms to actually *display* field-level errors the way `register`
+does is deliberately deferred: it's a UX addition across multiple components
+(likely wants a shared `mapProblemToFieldErrors()` helper), not a correctness
+bug, so it wasn't bundled into this code-quality pass.
 
 `src/routes/register/+page.svelte:19-49` maps `ApiError.problem.errors[]` into
 field-level inline errors — the only form in the app that does. Everywhere
@@ -131,6 +145,11 @@ for free instead of re-implementing it once (as `register` currently does).
 
 ### 5. Roles-fallback dead code masks a privilege-drop path — `src/lib/server/auth.ts:101`
 
+**Status: fixed.** `extractRoles` now returns `null` when claims or
+`realm_access` are absent (letting the `??` fallback actually trigger), and
+still returns a genuine empty array when Keycloak explicitly sends
+`roles: []`.
+
 ```ts
 roles: extractRoles(accessClaims) ?? previous?.roles ?? []
 ```
@@ -150,6 +169,11 @@ absent (so `??` does something), or drop the dead fallback and handle the
 empty-roles case explicitly.
 
 ### 6. `refreshIfNeeded` treats a network blip like a revoked token — `src/lib/server/auth.ts:78`
+
+**Status: fixed.** The catch block now only clears the session on
+`oidc.ResponseBodyError` (Keycloak explicitly rejected the grant); any other
+error (network failure, outage) preserves the existing session and retries
+on the next request.
 
 The catch-all around `refreshTokenGrant` calls `clearSession` and returns
 `null` for *any* thrown error, including a transient network failure or
@@ -214,6 +238,9 @@ localization treatments across five call sites.
 
 ### 11. `LocationPicker` geolocation callback fires after the panel is closed — `src/lib/components/LocationPicker.svelte:51`
 
+**Status: fixed.** Both the success and error callbacks now check `open`
+before calling `onpick`/setting `geoError`.
+
 `useAroundMe`'s success/error callbacks call `onpick()` / set `geoError`
 unconditionally, with no check that the picker is still open.
 
@@ -224,6 +251,13 @@ parent's sort to distance-based, even though the user closed the panel without
 confirming.
 
 ### 12. Idempotency-key reuse across retries with a different body — `src/lib/photos.ts:13`
+
+**Status: intentionally skipped.** `photos.spec.ts:91-121` asserts the
+current same-key-across-retries behavior as intended, and whether it's
+actually safe depends on how the backend enforces idempotency-key/body
+consistency — not visible from this repo. Left as-is rather than changing a
+tested contract without that knowledge; worth a follow-up conversation with
+backend about the intended semantics.
 
 `uploadAndRegisterPhoto` mints a fresh upload URL/`objectKey` on every call,
 but reuses the same `Idempotency-Key` (scoped only by `scopeKey`) across
@@ -237,6 +271,10 @@ exact same-key-different-body behavior as expected — worth revisiting whether
 that's actually the desired contract.)
 
 ### 13. Duplicated query-parsing/guard logic between two `+page.server.ts` files
+
+**Status: fixed.** `parseCoord` and `loginUrlFor` moved as-is into a new
+`src/lib/server/listPageParams.ts`; `parseSort` extracted as a
+`parseSortFactory(validSorts, fallback)` each route parameterizes locally.
 
 `parseSort` / `parseCoord` / `loginUrlFor` are defined nearly identically in
 both `src/routes/+page.server.ts:16-33` and
@@ -252,6 +290,11 @@ leaving one of the two sort-aware list pages on the old behavior.
 
 ### 14. Unnecessary blob-URL churn in `CreateRestaurantModal` photo previews — `src/lib/components/CreateRestaurantModal.svelte:45`
 
+**Status: fixed.** `previews` is now an incrementally-maintained `$state`
+array — object URLs are created only for newly-picked files and revoked only
+for the specific file removed (plus on `reset()`/unmount), so existing
+thumbnails no longer flicker on unrelated add/remove.
+
 `previews` (a `$derived`) calls `URL.createObjectURL` for the entire `files`
 array on every add/remove, and the `#each` block keys on `preview.url`
 (line 241) — so every existing thumbnail's key changes and gets
@@ -259,6 +302,14 @@ destroyed/recreated each time a new file is picked, causing visible flicker
 and briefly-live duplicate blob URLs.
 
 ### 15. Missing `typeof window` guard — `src/lib/idempotency.ts:5`
+
+**Status: fixed** — with a twist. A literal `typeof window === 'undefined'`
+guard (mirroring `sortLocation.ts`) broke `photos.spec.ts`'s idempotency-key
+test, which stubs `sessionStorage` directly in a Node vitest environment
+with no `window` global at all — the guard's early-return bypassed the stub
+entirely. Switched to guarding `typeof sessionStorage === 'undefined'`
+instead: more precise (it's the actual API being used), and compatible with
+how the existing test simulates the browser API.
 
 `getOrCreateKey` accesses `sessionStorage` directly, unlike the sibling
 `src/lib/sortLocation.ts:6`, which explicitly guards before touching

@@ -75,9 +75,15 @@ export async function refreshIfNeeded(
 		const updated = sessionFromTokens(tokens, session);
 		await writeSession(cookies, updated);
 		return updated;
-	} catch {
-		clearSession(cookies);
-		return null;
+	} catch (err) {
+		if (err instanceof oidc.ResponseBodyError) {
+			// Keycloak explicitly rejected the refresh token (e.g. invalid_grant) — it's dead.
+			clearSession(cookies);
+			return null;
+		}
+		// Network error / Keycloak outage — transient. Don't log the user out;
+		// keep the existing (not-yet-expired) session and retry on the next request.
+		return session;
 	}
 }
 
@@ -113,7 +119,9 @@ function decodeJwtClaims(jwt: string): Record<string, unknown> | null {
 	}
 }
 
-function extractRoles(claims: Record<string, unknown> | null): string[] {
-	const realmAccess = claims?.realm_access as { roles?: string[] } | undefined;
-	return realmAccess?.roles ?? [];
+function extractRoles(claims: Record<string, unknown> | null): string[] | null {
+	if (!claims) return null;
+	const realmAccess = claims.realm_access as { roles?: string[] } | undefined;
+	if (!realmAccess) return null;
+	return Array.isArray(realmAccess.roles) ? realmAccess.roles : [];
 }

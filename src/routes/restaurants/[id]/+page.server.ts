@@ -10,14 +10,21 @@ const EMPTY_PHOTOS: PhotosPageResponse = {
 	page: { hasNext: false, size: 0 }
 };
 
+function emptyOn404<T>(fallback: T) {
+	return (err: unknown): T => {
+		if (err instanceof ApiError && err.status === 404) return fallback;
+		throw err;
+	};
+}
+
 export const load: PageServerLoad = async ({ fetch, locals, params }) => {
 	try {
 		const sub = locals.session?.sub;
 		const [restaurant, reviewsPage, myReview, photosPage] = await Promise.all([
 			getRestaurantPublic(fetch, params.id),
 			listReviewsPublic(fetch, params.id, { size: 20 }),
-			sub ? getMyReview(fetch, params.id).catch(() => null) : Promise.resolve(null),
-			listPublicRestaurantPhotos(fetch, params.id, { size: 20 }).catch(() => EMPTY_PHOTOS)
+			sub ? getMyReview(fetch, params.id).catch(emptyOn404(null)) : Promise.resolve(null),
+			listPublicRestaurantPhotos(fetch, params.id, { size: 20 }).catch(emptyOn404(EMPTY_PHOTOS))
 		]);
 		return {
 			restaurant,

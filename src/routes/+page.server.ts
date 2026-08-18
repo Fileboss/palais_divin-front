@@ -3,6 +3,7 @@ import { listRestaurantsPublic, type RestaurantsPublicSort } from '$lib/api/rest
 import { listMyReviewsBatch } from '$lib/api/reviews';
 import { ApiError, type ReviewResponse } from '$lib/api/types';
 import { parseFilterState } from '$lib/filterState';
+import { loginUrlFor, parseCoord, parseSortFactory } from '$lib/server/listPageParams';
 import type { PageServerLoad } from './$types';
 
 const VALID_SORTS: RestaurantsPublicSort[] = [
@@ -13,24 +14,7 @@ const VALID_SORTS: RestaurantsPublicSort[] = [
 	'AFFINITY_DESC'
 ];
 
-function parseSort(raw: string | null): RestaurantsPublicSort {
-	if (!raw) return 'CREATED_AT_DESC';
-	return (VALID_SORTS as string[]).includes(raw)
-		? (raw as RestaurantsPublicSort)
-		: 'CREATED_AT_DESC';
-}
-
-function parseCoord(raw: string | null): number | undefined {
-	if (raw == null) return undefined;
-	const n = Number.parseFloat(raw);
-	return Number.isFinite(n) ? n : undefined;
-}
-
-function loginUrlFor(url: URL): string {
-	const returnTo = new URL(url);
-	returnTo.searchParams.set('auth_retry', '1');
-	return `/auth/login?return_to=${encodeURIComponent(returnTo.pathname + returnTo.search)}`;
-}
+const parseSort = parseSortFactory(VALID_SORTS, 'CREATED_AT_DESC');
 
 export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 	const isAuthRetry = url.searchParams.get('auth_retry') === '1';

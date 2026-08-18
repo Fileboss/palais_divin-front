@@ -2,6 +2,7 @@ import { redirect, error } from '@sveltejs/kit';
 import { listRecommendations, type RecommendationsSort } from '$lib/api/recommendations';
 import { ApiError } from '$lib/api/types';
 import { parseFilterState } from '$lib/filterState';
+import { loginUrlFor, parseCoord, parseSortFactory } from '$lib/server/listPageParams';
 import type { PageServerLoad } from './$types';
 
 const VALID_SORTS: RecommendationsSort[] = [
@@ -12,22 +13,7 @@ const VALID_SORTS: RecommendationsSort[] = [
 	'CREATED_AT_DESC'
 ];
 
-function parseSort(raw: string | null): RecommendationsSort {
-	if (!raw) return 'AFFINITY_DESC';
-	return (VALID_SORTS as string[]).includes(raw) ? (raw as RecommendationsSort) : 'AFFINITY_DESC';
-}
-
-function parseCoord(raw: string | null): number | undefined {
-	if (raw == null) return undefined;
-	const n = Number.parseFloat(raw);
-	return Number.isFinite(n) ? n : undefined;
-}
-
-function loginUrlFor(url: URL): string {
-	const returnTo = new URL(url);
-	returnTo.searchParams.set('auth_retry', '1');
-	return `/auth/login?return_to=${encodeURIComponent(returnTo.pathname + returnTo.search)}`;
-}
+const parseSort = parseSortFactory(VALID_SORTS, 'AFFINITY_DESC');
 
 export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 	const isAuthRetry = url.searchParams.get('auth_retry') === '1';

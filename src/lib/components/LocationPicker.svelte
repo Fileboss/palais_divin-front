@@ -50,6 +50,7 @@
 		navigator.geolocation.getCurrentPosition(
 			(pos) => {
 				geoLoading = false;
+				if (!open) return;
 				onpick({
 					label: m.sort_loc_around_me(),
 					lat: pos.coords.latitude,
@@ -58,6 +59,7 @@
 			},
 			(err) => {
 				geoLoading = false;
+				if (!open) return;
 				geoError =
 					err.code === err.PERMISSION_DENIED ? m.sort_loc_denied() : m.sort_loc_unavailable();
 			},
