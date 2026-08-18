@@ -135,11 +135,14 @@
 						type="password"
 						bind:value={password}
 						required
-						minlength="1"
+						minlength="8"
+						maxlength="128"
+						pattern="(?=.*[A-Za-z])(?=.*\d).+"
 						autocomplete="new-password"
 						class="rounded-md border-stone-300 focus:border-stone-500 focus:ring-stone-500"
 						aria-invalid={fieldErrors.password ? 'true' : undefined}
 					/>
+					<span class="text-xs text-stone-500">{m.register_password_hint()}</span>
 					{#if fieldErrors.password}
 						<span class="text-xs text-red-600" role="alert">{fieldErrors.password}</span>
 					{/if}

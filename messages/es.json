@@ -68,6 +68,7 @@
 	"register_field_email": "Correo electrónico",
 	"register_field_display_name": "Nombre visible",
 	"register_field_password": "Contraseña",
+	"register_password_hint": "Al menos 8 caracteres, con una letra y un número.",
 	"register_submit": "Crear cuenta",
 	"register_submitting": "Creando…",
 	"register_success_title": "Cuenta creada",

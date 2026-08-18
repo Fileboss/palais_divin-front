@@ -68,6 +68,7 @@
 	"register_field_email": "이메일",
 	"register_field_display_name": "표시 이름",
 	"register_field_password": "비밀번호",
+	"register_password_hint": "8자 이상, 영문자와 숫자를 포함해야 합니다.",
 	"register_submit": "계정 만들기",
 	"register_submitting": "생성 중…",
 	"register_success_title": "계정 생성됨",

@@ -212,6 +212,7 @@
 				bind:value={address}
 				required
 				minlength="1"
+				maxlength="500"
 				class="rounded-md border-stone-300 focus:border-stone-500 focus:ring-stone-500"
 			/>
 		</label>

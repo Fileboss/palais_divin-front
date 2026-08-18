@@ -68,6 +68,7 @@
 	"register_field_email": "E-Mail",
 	"register_field_display_name": "Anzeigename",
 	"register_field_password": "Passwort",
+	"register_password_hint": "Mindestens 8 Zeichen, mit einem Buchstaben und einer Ziffer.",
 	"register_submit": "Konto erstellen",
 	"register_submitting": "Wird erstellt…",
 	"register_success_title": "Konto erstellt",

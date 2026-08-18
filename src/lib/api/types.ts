@@ -153,8 +153,7 @@ export interface RecommendationResponse {
 	id: string;
 	name: string;
 	address?: string;
-	latitude?: number;
-	longitude?: number;
+	location?: CoordinatesDto;
 	affinity: number;
 	recommenderCount: number;
 	avgRating?: number | null;

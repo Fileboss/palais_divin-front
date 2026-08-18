@@ -68,6 +68,7 @@
 	"register_field_email": "メールアドレス",
 	"register_field_display_name": "表示名",
 	"register_field_password": "パスワード",
+	"register_password_hint": "8文字以上で、英字と数字を1つ以上含めてください。",
 	"register_submit": "アカウントを作成",
 	"register_submitting": "作成中…",
 	"register_success_title": "アカウントが作成されました",
