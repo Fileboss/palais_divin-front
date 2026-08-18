@@ -169,6 +169,7 @@
 	"sort_disabled_reco": "推荐功能即将支持",
 	"sort_disabled_signin": "登录后按亲和度排序",
 	"gallery_close": "关闭",
+	"gallery_empty": "暂无照片。",
 	"gallery_lightbox_label": "照片查看器",
 	"gallery_photo_aria": "第 {index} / {total} 张照片",
 	"distance_km": "{value} 公里",
@@ -176,6 +177,10 @@
 	"nav_profile": "我的主页",
 	"profile_member_since": "{date} 加入",
 	"error_user_not_found": "未找到该用户",
+	"error_restaurant_not_found": "未找到该餐厅",
+	"error_forbidden": "访问被拒绝",
+	"error_backend_unavailable": "服务暂时不可用,请稍后重试。",
+	"error_auth_failed_page": "此页面的身份验证失败。",
 	"profile_following_title": "我关注的人",
 	"profile_following_empty": "您还没有关注任何人。",
 	"profile_following_pending": "后端列表接口上线后可用。"

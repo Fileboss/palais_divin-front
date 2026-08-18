@@ -1,6 +1,8 @@
 import { redirect, error } from '@sveltejs/kit';
+import * as m from '$lib/paraglide/messages';
 import { listRecommendations, type RecommendationsSort } from '$lib/api/recommendations';
-import { ApiError } from '$lib/api/types';
+import { listMyReviewsBatch } from '$lib/api/reviews';
+import { ApiError, type ReviewResponse } from '$lib/api/types';
 import { parseFilterState } from '$lib/filterState';
 import { loginUrlFor, parseCoord, parseSortFactory } from '$lib/server/listPageParams';
 import type { PageServerLoad } from './$types';
@@ -18,7 +20,7 @@ const parseSort = parseSortFactory(VALID_SORTS, 'AFFINITY_DESC');
 export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 	const isAuthRetry = url.searchParams.get('auth_retry') === '1';
 	if (!locals.session) {
-		if (isAuthRetry) error(403, 'Authentication failed for this page.');
+		if (isAuthRetry) error(403, m.error_auth_failed_page());
 		redirect(302, loginUrlFor(url));
 	}
 	const sort = parseSort(url.searchParams.get('sort'));
@@ -37,10 +39,21 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 			takeOut: filters.takeOut,
 			delivery: filters.delivery
 		});
-		return { recommendations: data, meta: page, sort, lat, lng, filters };
+		let myReviews: Record<string, ReviewResponse | null> = {};
+		if (data.length > 0) {
+			try {
+				myReviews = await listMyReviewsBatch(
+					fetch,
+					data.map((r) => r.id)
+				);
+			} catch {
+				myReviews = {};
+			}
+		}
+		return { recommendations: data, meta: page, myReviews, sort, lat, lng, filters };
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 401) {
-			if (isAuthRetry) error(403, 'Authentication failed for this page.');
+			if (isAuthRetry) error(403, m.error_auth_failed_page());
 			redirect(302, loginUrlFor(url));
 		}
 		if (err instanceof ApiError) {
@@ -56,6 +69,6 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 		} else {
 			console.error('[recommendations load] unexpected error', err);
 		}
-		error(503, 'Backend unavailable');
+		error(503, m.error_backend_unavailable());
 	}
 };

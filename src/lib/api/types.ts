@@ -285,3 +285,12 @@ export async function parseProblem(res: Response): Promise<ProblemDetails | null
 		return null;
 	}
 }
+
+export function fieldErrorsFrom(err: unknown): Record<string, string> {
+	if (!(err instanceof ApiError)) return {};
+	const fields: Record<string, string> = {};
+	for (const fe of err.problem?.errors ?? []) {
+		if (fe.field) fields[fe.field] = fe.message;
+	}
+	return fields;
+}

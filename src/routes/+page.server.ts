@@ -1,4 +1,5 @@
 import { error, redirect } from '@sveltejs/kit';
+import * as m from '$lib/paraglide/messages';
 import { listRestaurantsPublic, type RestaurantsPublicSort } from '$lib/api/restaurants';
 import { listMyReviewsBatch } from '$lib/api/reviews';
 import { ApiError, type ReviewResponse } from '$lib/api/types';
@@ -50,7 +51,7 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 		return { restaurants: data, meta: page, myReviews, sort, lat, lng, filters };
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 401) {
-			if (isAuthRetry) error(403, 'Authentication failed for this page.');
+			if (isAuthRetry) error(403, m.error_auth_failed_page());
 			redirect(302, loginUrlFor(url));
 		}
 		if (
@@ -58,7 +59,7 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 			typeof err.problem?.type === 'string' &&
 			err.problem.type.endsWith('/problems/affinity-requires-auth')
 		) {
-			if (isAuthRetry) error(403, 'Authentication failed for this page.');
+			if (isAuthRetry) error(403, m.error_auth_failed_page());
 			redirect(302, loginUrlFor(url));
 		}
 		if (err instanceof ApiError) {
@@ -72,6 +73,6 @@ export const load: PageServerLoad = async ({ fetch, locals, url }) => {
 		} else {
 			console.error('[home load] unexpected error', err);
 		}
-		error(503, 'Backend unavailable');
+		error(503, m.error_backend_unavailable());
 	}
 };

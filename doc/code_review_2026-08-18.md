@@ -111,12 +111,15 @@ other status codes as a genuine error state.
 
 ### 4. Inconsistent error-detail surfacing across forms (feature coherence)
 
-**Status: partially addressed.** The `recommendations.ts` half (API layer not
-attaching `.problem`) is fixed — see #2. Wiring `CreateRestaurantModal` and
-the admin forms to actually *display* field-level errors the way `register`
-does is deliberately deferred: it's a UX addition across multiple components
-(likely wants a shared `mapProblemToFieldErrors()` helper), not a correctness
-bug, so it wasn't bundled into this code-quality pass.
+**Status: fixed.** `reviews.ts` and `connections.ts` now attach `.problem`
+(mirroring `recommendations.ts`'s fix, #2). Added a shared
+`fieldErrorsFrom(err)` helper in `src/lib/api/types.ts` and wired it into
+`CreateRestaurantModal` (name/address) and the admin tag-creation form
+(label) — a 250-char restaurant name now shows the actual backend message
+under the field instead of a generic "creation failed." Tag-implication
+creation, delete flows, and the invitation form were left on generic-error
+handling — their fields are selects/unconstrained, so field-level errors
+wouldn't add much there.
 
 `src/routes/register/+page.svelte:19-49` maps `ApiError.problem.errors[]` into
 field-level inline errors — the only form in the app that does. Everywhere
@@ -193,6 +196,13 @@ from `invalid_grant`-class errors (clear session, force re-login).
 
 ### 7. Recommendations screen never got the batched "my review" treatment
 
+**Status: fixed.** `RestaurantCard`'s "my review" panel was extracted into a
+standalone `src/lib/components/MyReviewPanel.svelte` (also closes #8, see
+below), and `recommendations/+page.server.ts`/`+page.svelte` now fetch and
+render it the same way the home feed does — the list item was restructured
+so the restaurant name (not the whole card) is the link, since interactive
+review-compose controls can't live inside an `<a>`.
+
 `src/routes/recommendations/+page.svelte:184-218` renders a bespoke `<li>`
 template — no thumbnail, no tags, no "my review" chip or inline compose —
 unlike `src/routes/+page.svelte:227-239`, which passes `myReviews` into
@@ -208,6 +218,13 @@ restaurant.
 
 ### 8. Duplicate review-submission recovery logic diverges on 409
 
+**Status: fixed.** Added `recoverExistingReview` to `src/lib/api/reviews.ts`
+(shared fetch-existing-on-conflict helper). `ReviewForm.svelte` now matches
+`MyReviewPanel`'s (formerly `RestaurantCard`'s) recovery: on 409 it fetches
+the existing review, hands it back to the parent via a new `onexisting`
+prop, and shows an inline message instead of replacing the whole form with a
+dead-end static block.
+
 `RestaurantCard.svelte:110-127` and `ReviewForm.svelte:49-57` both implement
 "create review, handle 409 already-reviewed," but diverge: `RestaurantCard`
 re-fetches the existing review via `getMyReview` and recovers into an editable
@@ -216,6 +233,13 @@ with a static message and no path to load/edit the existing review short of a
 manual reload.
 
 ### 9. `FollowButton` shows wrong initial state on the review list
+
+**Status: documented, not coded around.** Added an entry to `doc/missing.md`
+proposing a wire-shape fix (`ReviewResponse.authorFollowedByMe` or a batched
+follow-status lookup). A frontend-only workaround would mean either an extra
+per-author API call (reintroducing N+1) or fetching the viewer's entire
+follow list (unbounded/pagination-fragile) — this is a backend-shape gap per
+`CLAUDE.md`'s process, not a frontend bug to patch around.
 
 `src/routes/users/[userId]/+page.svelte:127-130` correctly seeds
 `initialFollowed` from `PublicUserResponse.isFollowedByMe`. But
@@ -227,6 +251,12 @@ restaurant's review list. Not a dead end (the 422-on-double-follow path
 recovers silently), but a visibly wrong first-render state.
 
 ### 10. Mixed-language / hardcoded error strings in `+page.server.ts` load functions
+
+**Status: fixed.** Added `error_restaurant_not_found`, `error_forbidden`,
+`error_backend_unavailable`, `error_auth_failed_page` (all 7 locales) and
+swapped in every hardcoded string below. Verified via the `PARAGLIDE_LOCALE`
+cookie that the messages actually switch per-locale server-side now (they
+didn't before).
 
 - `src/routes/users/[userId]/+page.server.ts:26` → `m.error_user_not_found()` (localized, correct)
 - `src/routes/restaurants/[id]/+page.server.ts:27` → hardcoded **French** `'Restaurant introuvable'` regardless of viewer locale
@@ -320,12 +350,20 @@ try/catch.
 
 ### 16. `PhotoGallery` has no empty state — `src/lib/components/PhotoGallery.svelte:62-101`
 
+**Status: fixed.** Added a `gallery_empty` message (7 locales) and an
+`{:else}` branch matching `RestaurantList`/`ReviewList`'s empty-state style.
+No "add a photo" CTA — confirmed there's no such feature anywhere outside
+restaurant creation.
+
 `RestaurantList`, `ReviewList`, and the recommendations list all render an
 explicit "nothing here yet" placeholder. `PhotoGallery` wraps everything in
 `{#if photos.length > 0}` and renders nothing when a restaurant has zero
 photos — breaks the pattern every other list in the app follows.
 
 ### 17. `RecommendationResponse.location` plumbed through but never rendered
+
+**Status: fixed.** Rendered the same way as `RestaurantCard`, as part of the
+#7 template restructure.
 
 Per I10.3, `RecommendationResponse.location: CoordinatesDto` now matches
 `RestaurantResponse.location`'s shape (fixed in commit `389b9b1`), but

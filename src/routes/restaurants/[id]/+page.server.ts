@@ -1,4 +1,5 @@
 import { error } from '@sveltejs/kit';
+import * as m from '$lib/paraglide/messages';
 import { listPublicRestaurantPhotos } from '$lib/api/photos';
 import { getRestaurantPublic } from '$lib/api/restaurants';
 import { getMyReview, listReviewsPublic } from '$lib/api/reviews';
@@ -35,8 +36,8 @@ export const load: PageServerLoad = async ({ fetch, locals, params }) => {
 		};
 	} catch (err) {
 		if (err instanceof ApiError && err.status === 404) {
-			error(404, 'Restaurant introuvable');
+			error(404, m.error_restaurant_not_found());
 		}
-		error(503, 'Backend unavailable');
+		error(503, m.error_backend_unavailable());
 	}
 };

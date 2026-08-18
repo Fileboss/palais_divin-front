@@ -13,10 +13,12 @@
 		type FilterState
 	} from '$lib/components/RestaurantFilters.svelte';
 	import { listRecommendations, type RecommendationsSort } from '$lib/api/recommendations';
+	import { listMyReviewsBatch } from '$lib/api/reviews';
 	import { loadSortLocation, saveSortLocation, type SortLocation } from '$lib/sortLocation';
 	import { appendFilterState } from '$lib/filterState';
+	import MyReviewPanel from '$lib/components/MyReviewPanel.svelte';
 	import type { PageData } from './$types';
-	import type { PageMeta, RecommendationResponse } from '$lib/api/types';
+	import type { PageMeta, RecommendationResponse, ReviewResponse } from '$lib/api/types';
 
 	let { data }: { data: PageData } = $props();
 
@@ -24,6 +26,8 @@
 	let recommendations = $state<RecommendationResponse[]>(data.recommendations);
 	// svelte-ignore state_referenced_locally
 	let meta = $state<PageMeta>(data.meta);
+	// svelte-ignore state_referenced_locally
+	let myReviews = $state<Record<string, ReviewResponse | null>>({ ...data.myReviews });
 	// svelte-ignore state_referenced_locally
 	let filters = $state<FilterState>(data.filters ?? emptyFilterState());
 	let loadingMore = $state(false);
@@ -33,9 +37,12 @@
 	$effect(() => {
 		recommendations = data.recommendations;
 		meta = data.meta;
+		myReviews = { ...data.myReviews };
 		filters = data.filters ?? emptyFilterState();
 		loadMoreError = null;
 	});
+
+	const userId = $derived(data.user?.sub ?? null);
 
 	const currentSort = $derived<SortKey>(data.sort ?? 'AFFINITY_DESC');
 	const currentLat = $derived<number | undefined>(data.lat);
@@ -110,11 +117,26 @@
 			});
 			recommendations = [...recommendations, ...next.data];
 			meta = next.page;
+			if (userId && next.data.length > 0) {
+				try {
+					const batch = await listMyReviewsBatch(
+						fetch,
+						next.data.map((r) => r.id)
+					);
+					myReviews = { ...myReviews, ...batch };
+				} catch {
+					// keep prior myReviews; new rows just won't show "my rating"
+				}
+			}
 		} catch {
 			loadMoreError = m.error_load_more_failed();
 		} finally {
 			loadingMore = false;
 		}
+	}
+
+	function handleReviewChange(review: ReviewResponse) {
+		myReviews = { ...myReviews, [review.restaurantId]: review };
 	}
 
 	function formatDistance(metres: number): string {
@@ -183,14 +205,25 @@
 		<ul class="flex flex-col gap-3">
 			{#each recommendations as rec (rec.id)}
 				<li>
-					<a
-						href={resolve(`/restaurants/${rec.id}`)}
+					<article
 						class="flex flex-row overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm transition hover:shadow-md"
 					>
 						<div class="flex flex-1 flex-col gap-2 p-4">
-							<h3 class="text-base font-semibold text-stone-900">{rec.name}</h3>
+							<h3 class="text-base font-semibold">
+								<a
+									href={resolve(`/restaurants/${rec.id}`)}
+									class="text-stone-900 hover:underline focus:underline focus:outline-none"
+								>
+									{rec.name}
+								</a>
+							</h3>
 							{#if rec.address}
 								<p class="text-sm text-stone-600">{rec.address}</p>
+							{/if}
+							{#if rec.location}
+								<p class="text-xs text-stone-400">
+									{rec.location.latitude.toFixed(4)}, {rec.location.longitude.toFixed(4)}
+								</p>
 							{/if}
 							<p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
 								{#if typeof rec.avgRating === 'number' && rec.avgRating > 0}
@@ -213,7 +246,17 @@
 							</p>
 							<p class="text-xl font-bold text-stone-800">{rec.affinity.toFixed(1)}</p>
 						</div>
-					</a>
+						{#if userId}
+							<div class="w-px self-stretch bg-stone-100"></div>
+							<div class="flex w-44 flex-shrink-0 flex-col gap-2 p-4">
+								<MyReviewPanel
+									restaurantId={rec.id}
+									myReview={myReviews[rec.id] ?? null}
+									onreviewchange={handleReviewChange}
+								/>
+							</div>
+						{/if}
+					</article>
 				</li>
 			{/each}
 		</ul>

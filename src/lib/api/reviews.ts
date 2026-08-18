@@ -1,5 +1,6 @@
 import {
 	ApiError,
+	parseProblem,
 	type CreateReviewRequest,
 	type MyReviewsBatchResponse,
 	type ReviewResponse,
@@ -10,7 +11,8 @@ type Fetcher = typeof fetch;
 
 async function parseOrThrow<T>(res: Response): Promise<T> {
 	if (!res.ok) {
-		throw new ApiError(res.status, `${res.status} ${res.statusText}`);
+		const problem = await parseProblem(res);
+		throw new ApiError(res.status, `${res.status} ${res.statusText}`, problem ?? undefined);
 	}
 	return (await res.json()) as T;
 }
@@ -62,6 +64,17 @@ export async function getMyReview(
 	);
 	if (res.status === 404) return null;
 	return parseOrThrow<ReviewResponse>(res);
+}
+
+export async function recoverExistingReview(
+	fetcher: Fetcher,
+	restaurantId: string
+): Promise<ReviewResponse | null> {
+	try {
+		return await getMyReview(fetcher, restaurantId);
+	} catch {
+		return null;
+	}
 }
 
 export async function listMyReviewsBatch(

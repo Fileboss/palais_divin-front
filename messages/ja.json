@@ -169,6 +169,7 @@
 	"sort_disabled_reco": "おすすめでも近日公開",
 	"sort_disabled_signin": "親和性で並べ替えるにはサインインしてください",
 	"gallery_close": "閉じる",
+	"gallery_empty": "まだ写真がありません。",
 	"gallery_lightbox_label": "フォトビューア",
 	"gallery_photo_aria": "写真 {index} / {total}",
 	"distance_km": "{value} km",
@@ -176,6 +177,10 @@
 	"nav_profile": "マイプロフィール",
 	"profile_member_since": "{date} に登録",
 	"error_user_not_found": "ユーザーが見つかりません",
+	"error_restaurant_not_found": "レストランが見つかりません",
+	"error_forbidden": "アクセスが拒否されました",
+	"error_backend_unavailable": "サービスが一時的に利用できません。しばらくしてから再試行してください。",
+	"error_auth_failed_page": "このページの認証に失敗しました。",
 	"profile_following_title": "フォロー中のユーザー",
 	"profile_following_empty": "まだ誰もフォローしていません。",
 	"profile_following_pending": "バックエンドのエンドポイントが提供されると利用できます。"

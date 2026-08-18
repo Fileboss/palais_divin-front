@@ -1,4 +1,5 @@
 import { error, redirect } from '@sveltejs/kit';
+import * as m from '$lib/paraglide/messages';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = ({ locals, url }) => {
@@ -6,7 +7,7 @@ export const load: PageServerLoad = ({ locals, url }) => {
 		redirect(302, `/auth/login?return_to=${encodeURIComponent(url.pathname + url.search)}`);
 	}
 	if (!locals.session.roles.includes('ADMIN')) {
-		error(403, 'Forbidden');
+		error(403, m.error_forbidden());
 	}
 	return {};
 };

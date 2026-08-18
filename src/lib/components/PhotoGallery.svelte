@@ -59,7 +59,9 @@
 
 <svelte:window onkeydown={handleKey} />
 
-{#if photos.length > 0}
+{#if photos.length === 0}
+	<p class="mt-8 text-sm text-stone-500">{m.gallery_empty()}</p>
+{:else}
 	<section class="mt-8">
 		<ul class="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
 			{#each photos as photo, i (photo.id)}

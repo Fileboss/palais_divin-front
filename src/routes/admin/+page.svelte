@@ -13,6 +13,7 @@
 		listTagImplications
 	} from '$lib/api/tags';
 	import {
+		fieldErrorsFrom,
 		TAG_CATEGORIES,
 		type CategoryGroup,
 		type InvitationResponse,
@@ -45,6 +46,7 @@
 	});
 	let tagSubmitting = $state(false);
 	let tagSubmitError = $state<string | null>(null);
+	let tagLabelError = $state<string | null>(null);
 
 	let catalogGroups = $state<CategoryGroup[]>([]);
 	let catalogLoading = $state(false);
@@ -129,6 +131,7 @@
 		}
 		tagSubmitting = true;
 		tagSubmitError = null;
+		tagLabelError = null;
 		try {
 			const created = await createTag(fetch, {
 				category: newTagCategory,
@@ -141,8 +144,13 @@
 			);
 			newTagLabel = '';
 			newTagLabelI18n = { en: '', es: '', de: '', zh: '', ko: '', ja: '' };
-		} catch {
-			tagSubmitError = m.admin_tag_create_failed();
+		} catch (err) {
+			const fields = fieldErrorsFrom(err);
+			if (fields.label) {
+				tagLabelError = fields.label;
+			} else {
+				tagSubmitError = m.admin_tag_create_failed();
+			}
 		} finally {
 			tagSubmitting = false;
 		}
@@ -363,8 +371,12 @@
 							minlength="1"
 							maxlength="127"
 							disabled={tagSubmitting}
+							aria-invalid={tagLabelError ? 'true' : undefined}
 							class="rounded-md border-stone-300 text-sm focus:border-stone-500 focus:ring-stone-500 disabled:opacity-50"
 						/>
+						{#if tagLabelError}
+							<span class="text-xs text-red-600" role="alert">{tagLabelError}</span>
+						{/if}
 					</label>
 				</div>
 

@@ -169,6 +169,7 @@
 	"sort_disabled_reco": "Bald verfügbar für Empfehlungen",
 	"sort_disabled_signin": "Anmelden, um nach Affinität zu sortieren",
 	"gallery_close": "Schließen",
+	"gallery_empty": "Noch keine Fotos.",
 	"gallery_lightbox_label": "Foto-Betrachter",
 	"gallery_photo_aria": "Foto {index} von {total}",
 	"distance_km": "{value} km",
@@ -176,6 +177,10 @@
 	"nav_profile": "Mein Profil",
 	"profile_member_since": "Mitglied seit {date}",
 	"error_user_not_found": "Benutzer nicht gefunden",
+	"error_restaurant_not_found": "Restaurant nicht gefunden",
+	"error_forbidden": "Zugriff verweigert",
+	"error_backend_unavailable": "Dienst vorübergehend nicht verfügbar. Bitte später erneut versuchen.",
+	"error_auth_failed_page": "Authentifizierung für diese Seite fehlgeschlagen.",
 	"profile_following_title": "Personen, denen ich folge",
 	"profile_following_empty": "Sie folgen noch niemandem.",
 	"profile_following_pending": "Verfügbar, sobald das Backend den Endpoint bereitstellt."

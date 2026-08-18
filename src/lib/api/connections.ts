@@ -1,10 +1,16 @@
-import { ApiError, type ConnectionResponse, type FollowingPageResponse } from './types';
+import {
+	ApiError,
+	parseProblem,
+	type ConnectionResponse,
+	type FollowingPageResponse
+} from './types';
 
 type Fetcher = typeof fetch;
 
 async function parseOrThrow<T>(res: Response): Promise<T> {
 	if (!res.ok) {
-		throw new ApiError(res.status, `${res.status} ${res.statusText}`);
+		const problem = await parseProblem(res);
+		throw new ApiError(res.status, `${res.status} ${res.statusText}`, problem ?? undefined);
 	}
 	return (await res.json()) as T;
 }

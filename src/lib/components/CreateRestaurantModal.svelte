@@ -4,7 +4,7 @@
 	import { attachRestaurantTag } from '$lib/api/tags';
 	import { uploadAndRegisterPhoto } from '$lib/photos';
 	import TagPicker from './TagPicker.svelte';
-	import type { PhotoResponse, RestaurantResponse } from '$lib/api/types';
+	import { fieldErrorsFrom, type PhotoResponse, type RestaurantResponse } from '$lib/api/types';
 
 	const MAX_FILES = 5;
 	const MAX_BYTES = 10 * 1024 * 1024;
@@ -39,6 +39,7 @@
 
 	let phase = $state<Phase>({ kind: 'idle' });
 	let submitError = $state<string | null>(null);
+	let fieldErrors = $state<Record<string, string>>({});
 
 	const submitting = $derived(phase.kind === 'creating' || phase.kind === 'uploading');
 
@@ -70,6 +71,7 @@
 		previews = [];
 		fileValidationError = null;
 		submitError = null;
+		fieldErrors = {};
 		phase = { kind: 'idle' };
 	}
 
@@ -115,13 +117,19 @@
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		submitError = null;
+		fieldErrors = {};
 		phase = { kind: 'creating' };
 
 		let restaurant: RestaurantResponse;
 		try {
 			restaurant = await createRestaurant(fetch, { name: name.trim(), address: address.trim() });
-		} catch {
-			submitError = m.error_create_failed();
+		} catch (err) {
+			const fields = fieldErrorsFrom(err);
+			if (Object.keys(fields).length > 0) {
+				fieldErrors = fields;
+			} else {
+				submitError = m.error_create_failed();
+			}
 			phase = { kind: 'idle' };
 			return;
 		}
@@ -207,8 +215,12 @@
 				required
 				minlength="1"
 				maxlength="200"
+				aria-invalid={fieldErrors.name ? 'true' : undefined}
 				class="rounded-md border-stone-300 focus:border-stone-500 focus:ring-stone-500"
 			/>
+			{#if fieldErrors.name}
+				<span class="text-xs text-red-600" role="alert">{fieldErrors.name}</span>
+			{/if}
 		</label>
 
 		<label class="flex flex-col gap-1">
@@ -219,8 +231,12 @@
 				required
 				minlength="1"
 				maxlength="500"
+				aria-invalid={fieldErrors.address ? 'true' : undefined}
 				class="rounded-md border-stone-300 focus:border-stone-500 focus:ring-stone-500"
 			/>
+			{#if fieldErrors.address}
+				<span class="text-xs text-red-600" role="alert">{fieldErrors.address}</span>
+			{/if}
 		</label>
 
 		<div class="flex flex-col gap-2">

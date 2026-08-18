@@ -169,6 +169,7 @@
 	"sort_disabled_reco": "Coming soon for recommendations",
 	"sort_disabled_signin": "Sign in to sort by affinity",
 	"gallery_close": "Close",
+	"gallery_empty": "No photos yet.",
 	"gallery_lightbox_label": "Photo viewer",
 	"gallery_photo_aria": "Photo {index} of {total}",
 	"distance_km": "{value} km",
@@ -176,6 +177,10 @@
 	"nav_profile": "My profile",
 	"profile_member_since": "Member since {date}",
 	"error_user_not_found": "User not found",
+	"error_restaurant_not_found": "Restaurant not found",
+	"error_forbidden": "Access denied",
+	"error_backend_unavailable": "Service temporarily unavailable. Please try again later.",
+	"error_auth_failed_page": "Authentication failed for this page.",
 	"profile_following_title": "People I follow",
 	"profile_following_empty": "You don't follow anyone yet.",
 	"profile_following_pending": "Available once the backend ships the list endpoint."

@@ -169,6 +169,7 @@
 	"sort_disabled_reco": "Próximamente para las recomendaciones",
 	"sort_disabled_signin": "Inicia sesión para ordenar por afinidad",
 	"gallery_close": "Cerrar",
+	"gallery_empty": "Aún no hay fotos.",
 	"gallery_lightbox_label": "Visor de fotos",
 	"gallery_photo_aria": "Foto {index} de {total}",
 	"distance_km": "{value} km",
@@ -176,6 +177,10 @@
 	"nav_profile": "Mi perfil",
 	"profile_member_since": "Miembro desde el {date}",
 	"error_user_not_found": "Usuario no encontrado",
+	"error_restaurant_not_found": "Restaurante no encontrado",
+	"error_forbidden": "Acceso denegado",
+	"error_backend_unavailable": "Servicio temporalmente no disponible. Inténtalo de nuevo más tarde.",
+	"error_auth_failed_page": "Error de autenticación en esta página.",
 	"profile_following_title": "Personas que sigo",
 	"profile_following_empty": "Aún no sigues a nadie.",
 	"profile_following_pending": "Disponible cuando el backend exponga el endpoint."

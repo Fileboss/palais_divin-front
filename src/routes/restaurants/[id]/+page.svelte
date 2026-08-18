@@ -82,6 +82,10 @@
 		}
 	}
 
+	function handleReviewExisting(review: ReviewResponse) {
+		myReview = review;
+	}
+
 	function handleReviewSaved(review: ReviewResponse) {
 		const wasEditing = !!myReview;
 		myReview = review;
@@ -185,6 +189,7 @@
 					restaurantId={data.restaurant.id}
 					existing={myReview}
 					oncreated={handleReviewSaved}
+					onexisting={handleReviewExisting}
 				/>
 			</div>
 		{/if}
