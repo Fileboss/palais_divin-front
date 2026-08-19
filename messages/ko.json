@@ -140,6 +140,8 @@
 	"filter_count": "{count}개 선택됨",
 	"filter_load_failed": "태그를 불러올 수 없습니다.",
 	"photo_select_hint": "최대 5장, 각 10 MB까지.",
+	"photo_browse_button": "찾아보기",
+	"photo_files_selected": "{count}개 파일 선택됨",
 	"photo_remove_aria": "{name} 제거",
 	"photo_uploading_progress": "사진 {done} / {total} 업로드 중…",
 	"photo_upload_failed_one": "{name} 업로드에 실패했습니다.",

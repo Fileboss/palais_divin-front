@@ -140,6 +140,8 @@
 	"filter_count": "{count} sélectionnée(s)",
 	"filter_load_failed": "Impossible de charger les étiquettes.",
 	"photo_select_hint": "Jusqu'à 5 images, 10 Mo chacune.",
+	"photo_browse_button": "Parcourir",
+	"photo_files_selected": "{count} fichier(s) sélectionné(s)",
 	"photo_remove_aria": "Retirer {name}",
 	"photo_uploading_progress": "Envoi de la photo {done} sur {total}…",
 	"photo_upload_failed_one": "Échec de l'envoi de {name}.",

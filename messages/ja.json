@@ -140,6 +140,8 @@
 	"filter_count": "{count} 件選択中",
 	"filter_load_failed": "タグを読み込めませんでした。",
 	"photo_select_hint": "最大 5 枚、各 10 MB まで。",
+	"photo_browse_button": "参照",
+	"photo_files_selected": "{count} 件のファイルを選択済み",
 	"photo_remove_aria": "{name} を削除",
 	"photo_uploading_progress": "写真 {done} / {total} をアップロード中…",
 	"photo_upload_failed_one": "{name} のアップロードに失敗しました。",

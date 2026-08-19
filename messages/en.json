@@ -140,6 +140,8 @@
 	"filter_count": "{count} selected",
 	"filter_load_failed": "Couldn't load tags.",
 	"photo_select_hint": "Up to 5 images, 10 MB each.",
+	"photo_browse_button": "Browse",
+	"photo_files_selected": "{count} file(s) selected",
 	"photo_remove_aria": "Remove {name}",
 	"photo_uploading_progress": "Uploading photo {done} of {total}…",
 	"photo_upload_failed_one": "Failed to upload {name}.",

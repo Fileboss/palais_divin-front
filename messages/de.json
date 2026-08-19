@@ -140,6 +140,8 @@
 	"filter_count": "{count} ausgewählt",
 	"filter_load_failed": "Tags konnten nicht geladen werden.",
 	"photo_select_hint": "Bis zu 5 Bilder, je 10 MB.",
+	"photo_browse_button": "Durchsuchen",
+	"photo_files_selected": "{count} Datei(en) ausgewählt",
 	"photo_remove_aria": "{name} entfernen",
 	"photo_uploading_progress": "Foto {done} von {total} wird hochgeladen…",
 	"photo_upload_failed_one": "{name} konnte nicht hochgeladen werden.",

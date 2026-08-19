@@ -246,14 +246,27 @@
 
 		<div class="flex flex-col gap-2">
 			<span class="text-sm font-medium text-stone-700">{m.photo_add_label()}</span>
-			<input
-				type="file"
-				accept="image/*"
-				multiple
-				onchange={handleFilesPicked}
-				disabled={submitting || files.length >= MAX_FILES}
-				class="block w-full text-sm text-stone-600 file:mr-3 file:rounded-md file:border-0 file:bg-stone-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-stone-700 hover:file:bg-stone-200 disabled:opacity-50"
-			/>
+			<div class="flex items-center gap-3">
+				<label
+					for="restaurant-photo-input"
+					class="rounded-md bg-stone-100 px-3 py-1.5 text-sm font-medium text-stone-700 hover:bg-stone-200"
+					class:pointer-events-none={submitting || files.length >= MAX_FILES}
+					class:opacity-50={submitting || files.length >= MAX_FILES}
+				>
+					{m.photo_browse_button()}
+				</label>
+				<span class="text-sm text-stone-600">{m.photo_files_selected({ count: files.length })}</span
+				>
+				<input
+					id="restaurant-photo-input"
+					type="file"
+					accept="image/*"
+					multiple
+					onchange={handleFilesPicked}
+					disabled={submitting || files.length >= MAX_FILES}
+					class="sr-only"
+				/>
+			</div>
 			<p class="text-xs text-stone-500">{m.photo_select_hint()}</p>
 			{#if fileValidationError}
 				<p class="text-xs text-red-600" role="alert">{fileValidationError}</p>

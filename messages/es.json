@@ -140,6 +140,8 @@
 	"filter_count": "{count} seleccionada(s)",
 	"filter_load_failed": "No se pudieron cargar las etiquetas.",
 	"photo_select_hint": "Hasta 5 imágenes, 10 MB cada una.",
+	"photo_browse_button": "Examinar",
+	"photo_files_selected": "{count} archivo(s) seleccionado(s)",
 	"photo_remove_aria": "Quitar {name}",
 	"photo_uploading_progress": "Subiendo la foto {done} de {total}…",
 	"photo_upload_failed_one": "No se pudo subir {name}.",

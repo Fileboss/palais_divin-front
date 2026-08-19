@@ -140,6 +140,8 @@
 	"filter_count": "已选 {count} 个",
 	"filter_load_failed": "无法加载标签。",
 	"photo_select_hint": "最多 5 张图片，每张 10 MB。",
+	"photo_browse_button": "浏览",
+	"photo_files_selected": "已选择 {count} 个文件",
 	"photo_remove_aria": "移除 {name}",
 	"photo_uploading_progress": "正在上传第 {done} / {total} 张照片…",
 	"photo_upload_failed_one": "{name} 上传失败。",
