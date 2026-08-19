@@ -4,6 +4,7 @@
 	import * as m from '$lib/paraglide/messages';
 	import Header from '$lib/components/Header.svelte';
 	import PhotoGallery from '$lib/components/PhotoGallery.svelte';
+	import RestaurantMap from '$lib/components/RestaurantMap.svelte';
 	import RestaurantTagsEditor from '$lib/components/RestaurantTagsEditor.svelte';
 	import ReviewForm from '$lib/components/ReviewForm.svelte';
 	import ReviewList from '$lib/components/ReviewList.svelte';
@@ -149,10 +150,9 @@
 		{/if}
 
 		{#if data.restaurant.location}
-			<p class="mt-2 text-xs text-stone-400">
-				{data.restaurant.location.latitude.toFixed(5)},
-				{data.restaurant.location.longitude.toFixed(5)}
-			</p>
+			<div class="mt-3 h-48 w-full overflow-hidden rounded-md">
+				<RestaurantMap location={data.restaurant.location} name={data.restaurant.name} />
+			</div>
 		{/if}
 
 		<p class="mt-2 text-xs text-stone-400">

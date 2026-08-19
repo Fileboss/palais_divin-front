@@ -10,6 +10,10 @@ export default defineConfig({
 		sveltekit(),
 		paraglideVitePlugin({ project: './project.inlang', outdir: './src/lib/paraglide' })
 	],
+	// maplibre-gl ships its own Web Worker as a separate ESM chunk; Vite's dep
+	// optimizer pre-bundles the library into a single file and breaks the
+	// worker's relative import, 404ing on maplibre-gl-worker.mjs in dev.
+	optimizeDeps: { exclude: ['maplibre-gl'] },
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

@@ -38,12 +38,14 @@ const CSP_DIRECTIVES = [
 	// Photo URLs are backend-presigned and env-dependent; allowing https: keeps
 	// us flexible until the storage origin is fixed.
 	"img-src 'self' data: https:",
-	"connect-src 'self'",
+	"connect-src 'self' https://tiles.openfreemap.org",
 	"font-src 'self'",
 	"object-src 'none'",
 	"base-uri 'self'",
 	"frame-ancestors 'none'",
-	"form-action 'self'"
+	"form-action 'self'",
+	// MapLibre GL decodes vector tiles in a Worker spun up from a blob: URL.
+	"worker-src 'self' blob:"
 ].join('; ');
 
 const DEV_CSP_DIRECTIVES = CSP_DIRECTIVES.replace(

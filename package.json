@@ -48,6 +48,7 @@
 	},
 	"dependencies": {
 		"jose": "^6.2.3",
+		"maplibre-gl": "^6.4.1",
 		"openid-client": "^6.8.4"
 	}
 }
