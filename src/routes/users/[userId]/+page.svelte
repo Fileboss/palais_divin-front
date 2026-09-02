@@ -117,7 +117,7 @@
 				{initial}
 			</div>
 			<div class="flex flex-col">
-				<h1 class="text-2xl font-semibold text-stone-900">{data.profile.displayName}</h1>
+				<h1 class="font-display text-2xl text-stone-900">{data.profile.displayName}</h1>
 				<p class="text-sm text-stone-500">
 					{m.profile_member_since({ date: memberSince })}
 				</p>

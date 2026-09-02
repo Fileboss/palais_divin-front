@@ -167,7 +167,7 @@
 <main class="mx-auto max-w-5xl px-4 py-8">
 	<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
 		<div>
-			<h1 class="text-2xl font-bold text-stone-900">{m.recommendations_title()}</h1>
+			<h1 class="font-display text-2xl text-stone-900">{m.recommendations_title()}</h1>
 			<p class="mt-1 text-sm text-stone-600">{m.recommendations_subtitle()}</p>
 		</div>
 		<div class="flex flex-wrap items-center gap-3">

@@ -145,14 +145,12 @@
 										onclick={() => toggle(tag.id)}
 										disabled={saving}
 										aria-pressed={isSelected}
-										class="rounded-full border px-2.5 py-0.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50"
-										class:border-stone-900={isSelected}
-										class:bg-stone-900={isSelected}
-										class:text-white={isSelected}
-										class:border-stone-300={!isSelected}
-										class:bg-white={!isSelected}
-										class:text-stone-700={!isSelected}
-										class:hover:bg-stone-50={!isSelected}
+										class={[
+											'rounded-full border px-2.5 py-0.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50',
+											isSelected
+												? 'border-stone-900 bg-stone-900 text-white'
+												: 'border-stone-300 bg-white text-stone-700 hover:bg-stone-50'
+										]}
 									>
 										{tagLabel(tag)}
 									</button>

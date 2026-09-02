@@ -1,3 +1,49 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+/* Self-hosted (CSP allows font-src 'self' only) — used sparingly for the
+   brand mark and page headings, never body copy. */
+@font-face {
+	font-family: 'Unbounded';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('../lib/assets/fonts/unbounded-700-latin.woff2') format('woff2');
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC,
+		U+2122;
+}
+
+@theme {
+	--font-display: 'Unbounded', ui-sans-serif, system-ui, sans-serif;
+
+	/*
+	 * Lightly-solarized neutral ramp: same lightness (L) at every step as
+	 * Tailwind's stock `stone` scale, so every existing contrast ratio
+	 * (text-stone-900 on bg-stone-50, white-on-stone-900 buttons, etc.)
+	 * holds exactly. Only chroma/hue move — warming the paper end toward
+	 * Solarized's cream, and cooling the ink end toward its dark teal.
+	 */
+	--color-white: oklch(99% 0.006 95);
+	--color-stone-50: oklch(98.5% 0.012 95);
+	--color-stone-100: oklch(97% 0.016 92);
+	--color-stone-200: oklch(92.3% 0.022 88);
+	--color-stone-300: oklch(86.9% 0.03 86);
+	--color-stone-400: oklch(70.9% 0.032 80);
+	--color-stone-500: oklch(55.3% 0.03 70);
+	--color-stone-600: oklch(44.4% 0.026 55);
+	--color-stone-700: oklch(37.4% 0.022 40);
+	--color-stone-800: oklch(26.8% 0.022 220);
+	--color-stone-900: oklch(21.6% 0.026 218);
+	--color-stone-950: oklch(14.7% 0.02 216);
+
+	/* Signature accent duo — the one Y2K "holographic foil" touch, kept to
+	   a single hairline detail rather than spread across the UI. */
+	--color-flamingo-400: oklch(80% 0.1 10);
+	--color-flamingo-500: oklch(72% 0.15 8);
+	--color-flamingo-600: oklch(62% 0.17 9);
+	--color-lagoon-400: oklch(78% 0.09 195);
+	--color-lagoon-500: oklch(68% 0.11 195);
+	--color-lagoon-600: oklch(58% 0.12 195);
+}

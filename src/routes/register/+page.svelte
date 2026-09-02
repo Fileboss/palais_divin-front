@@ -85,7 +85,7 @@
 
 	<div class="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
 		{#if succeeded}
-			<h1 class="text-xl font-semibold text-stone-900">{m.register_success_title()}</h1>
+			<h1 class="font-display text-xl text-stone-900">{m.register_success_title()}</h1>
 			<p class="mt-2 text-sm text-stone-600">{m.register_success_body()}</p>
 			<a
 				href={resolve('/auth/login')}
@@ -94,7 +94,7 @@
 				{m.register_success_signin()} →
 			</a>
 		{:else}
-			<h1 class="text-xl font-semibold text-stone-900">{m.register_title()}</h1>
+			<h1 class="font-display text-xl text-stone-900">{m.register_title()}</h1>
 			<p class="mt-1 text-sm text-stone-600">{m.register_subtitle()}</p>
 
 			<form onsubmit={handleSubmit} class="mt-6 flex flex-col gap-4">

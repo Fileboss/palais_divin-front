@@ -79,9 +79,10 @@
 					type="button"
 					onclick={() => (rating = star)}
 					aria-label={String(star)}
-					class="text-2xl leading-none transition-transform hover:scale-110 focus:outline-none"
-					class:text-amber-400={star <= rating}
-					class:text-stone-300={star > rating}
+					class={[
+						'text-2xl leading-none transition-transform hover:scale-110 focus:outline-none',
+						star <= rating ? 'text-amber-400' : 'text-stone-300'
+					]}
 				>
 					★
 				</button>

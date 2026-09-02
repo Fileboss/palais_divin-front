@@ -249,9 +249,10 @@
 			<div class="flex items-center gap-3">
 				<label
 					for="restaurant-photo-input"
-					class="rounded-md bg-stone-100 px-3 py-1.5 text-sm font-medium text-stone-700 hover:bg-stone-200"
-					class:pointer-events-none={submitting || files.length >= MAX_FILES}
-					class:opacity-50={submitting || files.length >= MAX_FILES}
+					class={[
+						'rounded-md bg-stone-100 px-3 py-1.5 text-sm font-medium text-stone-700 hover:bg-stone-200',
+						(submitting || files.length >= MAX_FILES) && 'pointer-events-none opacity-50'
+					]}
 				>
 					{m.photo_browse_button()}
 				</label>
@@ -316,11 +317,7 @@
 					</ul>
 				{/if}
 				{#if phase.failedTagCount > 0}
-					<p
-						class="text-amber-800"
-						class:mt-2={phase.failed.length > 0}
-						class:font-medium={phase.failed.length === 0}
-					>
+					<p class={['text-amber-800', phase.failed.length > 0 ? 'mt-2' : 'font-medium']}>
 						{m.tag_attach_partial({ count: phase.failedTagCount })}
 					</p>
 				{/if}

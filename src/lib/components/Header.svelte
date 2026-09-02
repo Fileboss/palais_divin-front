@@ -26,21 +26,20 @@
 	let open = $state(false);
 	let el = $state<HTMLDivElement | null>(null);
 
-	$effect(() => {
-		if (!open) return;
-		const handler = (e: MouseEvent) => {
-			if (el && !el.contains(e.target as Node)) open = false;
-		};
-		document.addEventListener('click', handler);
-		return () => document.removeEventListener('click', handler);
-	});
+	function handleDocumentClick(e: MouseEvent) {
+		if (open && el && !el.contains(e.target as Node)) open = false;
+	}
 </script>
 
-<header
-	class="relative z-50 border-b border-stone-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
->
+<svelte:document onclick={handleDocumentClick} />
+
+<header class="relative z-50 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+	<div
+		class="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-flamingo-400 via-lagoon-400 to-flamingo-400"
+		aria-hidden="true"
+	></div>
 	<div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-		<a href={resolve('/')} class="text-lg font-semibold tracking-tight text-stone-900">
+		<a href={resolve('/')} class="font-display text-lg tracking-tight text-stone-900">
 			{m.brand_name()} 🦩
 		</a>
 
@@ -116,10 +115,10 @@
 									open = false;
 									if (locale !== currentLocale) setLocale(locale);
 								}}
-								class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs hover:bg-stone-50"
-								class:font-semibold={locale === currentLocale}
-								class:text-stone-900={locale === currentLocale}
-								class:text-stone-500={locale !== currentLocale}
+								class={[
+									'flex w-full items-center gap-2 px-3 py-2 text-left text-xs hover:bg-stone-50',
+									locale === currentLocale ? 'font-semibold text-stone-900' : 'text-stone-500'
+								]}
 							>
 								<span>{flagMap[locale] ?? ''}</span>
 								<span class="uppercase">{locale}</span>

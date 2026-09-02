@@ -189,14 +189,12 @@
 						type="button"
 						onclick={() => toggleSlug(category, tag.slug)}
 						aria-pressed={isSelected}
-						class="rounded-full border px-2.5 py-0.5 text-xs font-medium transition"
-						class:border-stone-900={isSelected}
-						class:bg-stone-900={isSelected}
-						class:text-white={isSelected}
-						class:border-stone-300={!isSelected}
-						class:bg-white={!isSelected}
-						class:text-stone-700={!isSelected}
-						class:hover:bg-stone-50={!isSelected}
+						class={[
+							'rounded-full border px-2.5 py-0.5 text-xs font-medium transition',
+							isSelected
+								? 'border-stone-900 bg-stone-900 text-white'
+								: 'border-stone-300 bg-white text-stone-700 hover:bg-stone-50'
+						]}
 					>
 						{tagLabel(tag)}
 					</button>
@@ -216,8 +214,10 @@
 		>
 			<span
 				aria-hidden="true"
-				class="inline-block text-[10px] text-stone-400 transition-transform"
-				class:rotate-90={expanded}
+				class={[
+					'inline-block text-[10px] text-stone-400 transition-transform',
+					expanded && 'rotate-90'
+				]}
 			>
 				▶
 			</span>
@@ -277,14 +277,12 @@
 				<button
 					type="button"
 					onclick={() => cycleBoolean(toggle.field)}
-					class="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition"
-					class:border-stone-900={state !== undefined}
-					class:bg-stone-900={state === true}
-					class:text-white={state === true}
-					class:bg-white={state !== true}
-					class:text-stone-900={state === false}
-					class:border-stone-300={state === undefined}
-					class:text-stone-700={state === undefined}
+					class={[
+						'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition',
+						state === true && 'border-stone-900 bg-stone-900 text-white',
+						state === false && 'border-stone-900 bg-white text-stone-900',
+						state === undefined && 'border-stone-300 bg-white text-stone-700'
+					]}
 				>
 					<span>{toggle.label}</span>
 					<span class="text-[10px] opacity-70">{booleanLabel(state)}</span>

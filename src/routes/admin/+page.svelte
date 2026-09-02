@@ -257,7 +257,7 @@
 <Header user={data.user} />
 
 <main class="mx-auto max-w-5xl px-4 py-8">
-	<h1 class="text-2xl font-bold text-stone-900">{m.admin_title()}</h1>
+	<h1 class="font-display text-2xl text-stone-900">{m.admin_title()}</h1>
 
 	<section class="mt-8">
 		<h2 class="text-lg font-semibold text-stone-900">{m.admin_section_users()}</h2>

@@ -32,14 +32,9 @@
 
 	const currentLabel = $derived(options.find((o) => o.key === value)?.label ?? '');
 
-	$effect(() => {
-		if (!open) return;
-		const handler = (e: MouseEvent) => {
-			if (el && !el.contains(e.target as Node)) open = false;
-		};
-		document.addEventListener('click', handler);
-		return () => document.removeEventListener('click', handler);
-	});
+	function handleDocumentClick(e: MouseEvent) {
+		if (open && el && !el.contains(e.target as Node)) open = false;
+	}
 
 	function pick(opt: SortOption) {
 		if (opt.disabled) return;
@@ -47,6 +42,8 @@
 		if (opt.key !== value) onchange(opt.key);
 	}
 </script>
+
+<svelte:document onclick={handleDocumentClick} />
 
 <div bind:this={el} class="relative">
 	<button
@@ -83,13 +80,15 @@
 					aria-disabled={opt.disabled}
 					title={opt.disabled ? opt.disabledReason : undefined}
 					onclick={() => pick(opt)}
-					class="flex w-full items-center justify-between px-3 py-2 text-left text-sm"
-					class:cursor-not-allowed={opt.disabled}
-					class:text-stone-400={opt.disabled}
-					class:text-stone-900={!opt.disabled && opt.key === value}
-					class:font-semibold={!opt.disabled && opt.key === value}
-					class:text-stone-700={!opt.disabled && opt.key !== value}
-					class:hover:bg-stone-50={!opt.disabled}
+					class={[
+						'flex w-full items-center justify-between px-3 py-2 text-left text-sm',
+						opt.disabled
+							? 'cursor-not-allowed text-stone-400'
+							: [
+									'hover:bg-stone-50',
+									opt.key === value ? 'font-semibold text-stone-900' : 'text-stone-700'
+								]
+					]}
 				>
 					<span>{opt.label}</span>
 					{#if opt.disabled}

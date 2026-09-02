@@ -114,20 +114,20 @@
 			<button
 				type="button"
 				onclick={() => (tab = 'around')}
-				class="flex-1 px-3 py-2 text-sm font-medium"
-				class:bg-stone-50={tab === 'around'}
-				class:text-stone-900={tab === 'around'}
-				class:text-stone-500={tab !== 'around'}
+				class={[
+					'flex-1 px-3 py-2 text-sm font-medium',
+					tab === 'around' ? 'bg-stone-50 text-stone-900' : 'text-stone-500'
+				]}
 			>
 				{m.sort_loc_around_me()}
 			</button>
 			<button
 				type="button"
 				onclick={() => (tab = 'custom')}
-				class="flex-1 px-3 py-2 text-sm font-medium"
-				class:bg-stone-50={tab === 'custom'}
-				class:text-stone-900={tab === 'custom'}
-				class:text-stone-500={tab !== 'custom'}
+				class={[
+					'flex-1 px-3 py-2 text-sm font-medium',
+					tab === 'custom' ? 'bg-stone-50 text-stone-900' : 'text-stone-500'
+				]}
 			>
 				{m.sort_loc_custom_place()}
 			</button>

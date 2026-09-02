@@ -79,9 +79,10 @@
 					type="button"
 					onclick={() => (selectedRating = star)}
 					aria-label={String(star)}
-					class="text-lg leading-none transition-transform hover:scale-110 focus:outline-none"
-					class:text-amber-400={star <= selectedRating}
-					class:text-stone-300={star > selectedRating}>★</button
+					class={[
+						'text-lg leading-none transition-transform hover:scale-110 focus:outline-none',
+						star <= selectedRating ? 'text-amber-400' : 'text-stone-300'
+					]}>★</button
 				>
 			{/each}
 		</div>

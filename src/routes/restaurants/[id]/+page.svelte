@@ -114,7 +114,7 @@
 	</a>
 
 	<div class="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-		<h1 class="text-2xl font-bold text-stone-900">{data.restaurant.name}</h1>
+		<h1 class="font-display text-2xl text-stone-900">{data.restaurant.name}</h1>
 
 		{#if data.restaurant.address}
 			<p class="mt-1 text-sm text-stone-600">{data.restaurant.address}</p>
