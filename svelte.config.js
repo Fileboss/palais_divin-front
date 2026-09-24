@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-node';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -7,9 +7,9 @@ const config = {
 		runes: ({ filename }) => (filename.split(/[/\\]/).includes('node_modules') ? undefined : true)
 	},
 	kit: {
-		// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
-		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
+		// adapter-node: the app is a BFF (it owns the OIDC flow and proxies /api/* with the
+		// caller's bearer token), so it must run as a Node server — not as static output.
+		// Deployed as a container behind Caddy; see the Deployment section in CLAUDE.md.
 		adapter: adapter()
 	}
 };
