@@ -1,6 +1,6 @@
 # Palais Divin — Frontend
 
-SvelteKit frontend for [palaisdivin.lepgu.fr](https://palaisdivin.lepgu.fr), a restaurant rating web app focused on Toulouse.
+SvelteKit frontend for [palais-divin.lepgu.fr](https://palais-divin.lepgu.fr), a restaurant rating web app focused on Toulouse.
 
 ## Stack
 
